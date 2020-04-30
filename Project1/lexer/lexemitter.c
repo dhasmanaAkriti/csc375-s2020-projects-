@@ -1,26 +1,30 @@
 #include "lexer.h"
+
 //
 // generates the lexer's output
 //   t: the token
 //   tval: token value
 //
 void lexer_emit(int t, int tval) {
+  char operator[20];
+  char Binary_operator[20];
+  char Punctuation[20];
 
   switch(t) {
     case NUM:
       printf("NUM.%d\n", tval);
     case ID:
-      printf("ID.%s\n", string_so_far );
+      printf("ID.%s\n", lexbuf);
   // Keyword
     case IF:
       printf("IF\n");
       break;
     case INT:
-      printf("INT\n")
+      printf("INT\n");
     case CHAR:
-      printf("CHAR\n", );
+      printf("CHAR\n");
     case WHILE:
-      printf("WHILE\n")
+      printf("WHILE\n");
       break;
     case BREAK:
       printf("BREAK\n");
@@ -33,64 +37,61 @@ void lexer_emit(int t, int tval) {
     case WRITELN:
       printf("WRITELN \n");
     case RETURN:
-      printf("RETURN")
+      printf("RETURN");
     case UNOP:
-      char Binary_operator[]
-      if (tval == ASSIGN)) {
-        operator = "ASSIGN"
+      if (tval == ASSIGN){
+        char Binary_operatorp[20] = "ASSIGN";
       }else{
-        operator = "NOT"
+        char Binary_operator[20] = "NOT";
       }
       printf("UNOP.%s\n", Binary_operator);
     case BINOP:
-      char operator[]
       if (tval == PLUS){
-        operator = "PLUS"
+        char operator[20] = "PLUS";
       }else if (tval == MINUS) {
-        operator = "MINUS"
+        char operator[20] = "MINUS";
         /* code */
       } else if (tval == DIVIDE) {
-        operator = "DIVIDE"
+        char operator[20] = "DIVIDE";
       } else if (tval == MULTIPLY) {
-        operator = "MULTIPLY"
+        char operator[20] = "MULTIPLY";
       }else if (tval == E) {
-        operator = "E"
+        char operator[20] = "E";
       }else if (tval == NE) {
-        operator = "NE"
+        char operator[20] = "NE";
       }else if (tval == LT) {
-        operator = "LT"
+        char operator[20] = "LT";
       }else if (tval == LE) {
-        operator = "LE"
+        char operator[20] = "LE";
       }else if (tval == GT) {
-        operator = "GT"
+        char operator[20] = "GT";
       } else if (tval == GE) {
-        operator = "GE"
+        char operator[20] = "GE";
       }else if (tval == AND) {
-        operator = "AND"
+        char operator[20]  = "AND";
       }else {
-        operator = "OR"
+        char operator[20] = "OR";
       }
-      printf("BINOP.%d\n" operator)
+      printf("BINOP.%s\n", operator);
     case PUNCT:
-      char punctuation[]
       if (tval == LCB){
-        operator = "LCB"
+        char Punctuation[20] = "LCB";
       }else if (tval == RCB) {
-        operator = "RCB"
+        char Punctuation[20] = "RCB";
       }else if (tval == LB) {
-        operator = "LB"
+        char Punctuation[20] = "LB";
       }else if (tval == RB) {
-        operator = "RB"
+        char Punctuation[20] = "RB";
       }else if (tval == LP) {
-        operator = "LP"
+        char Punctuation[20] = "LP";
       }else if (tval == RP) {
-        operator = "RP"
+        char Punctuation[20] = "RP";
       }else if (tval == SEMICOLON) {
-      operator = "SEMICOLON"
+        char Punctuation[20] = "SEMICOLON";
       }
-      printf("PUNCT.%s\n", punctuation );
+      printf("PUNCT.%s\n", Punctuation );
     default:
-      printf("token %c\n", letter);
+      printf("token %c\n", tval);
       break;
   }
 }

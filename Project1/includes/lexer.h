@@ -23,7 +23,7 @@
 
 // CONSTANT DEFS:
 // constants used by lexer
-#define MAXLEXSIZE    128            // max length of a lexeme
+#define MAXLEXSIZE    512            // max length of a lexeme
 #define NONE           -1
 #define LEXERROR       -1
 
@@ -50,8 +50,7 @@ typedef enum {STARTTOKEN,
               UNOP,
               PUNCT,
               DONE,             // special "token" indicates LA is done
-              ENDTOKEN } tokenT;
-typedef enum {PLUS,
+              PLUS,
               MINUS,
               DIVIDE,
               MULTIPLY,
@@ -62,17 +61,18 @@ typedef enum {PLUS,
               GT,
               GE,
               AND,
-              OR} BinaryOps;
-typedef enum {ASSIGN,
-              NOT } UnaryOps
-typedef enum { LCB,
+              OR,
+              ASSIGN,
+              NOT,
+              LCB,
               RCB,
               LB,
               RB,
               LP,
               RP,
-              SEMICOLON
-            } Punctuations;
+              SEMICOLON,
+              ENDTOKEN,
+            } tokenT;
 
 // GLOBAL VARIABLE DEFS: for global variable that are used in more than one .c:
 // "extern" means they are declared somewhere else (in exactly one .c file)
@@ -107,7 +107,7 @@ extern int  src_lineno;
 // (ones defined in one lexer.c file, that are used in other modules)
 // "extern" means that the function's definition is somewhere else
 extern int lexan(FILE *fd);
-extern void lexer_emit(int t, int tval, char val[], char val);
+extern void lexer_emit(int t, int tval);
 void lexer_error(char *m, int lineno);
 
 #endif
