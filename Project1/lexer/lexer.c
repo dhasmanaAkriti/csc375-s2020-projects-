@@ -129,6 +129,7 @@ void clear_lexbuf(){
   }
 }
 
+
 int matches_token(FILE *fd){
   clear_lexbuf();
   size = 1;
@@ -176,7 +177,7 @@ int matches_token(FILE *fd){
       break;
     case '|':
       curr = fgetc(fd);
-      if(next == '|'){
+      if(curr == '|'){
         tokenval = OR;
         return BINOP;
       }else{
@@ -293,8 +294,46 @@ int matches_token(FILE *fd){
     default:
       if((curr >= 'a' && curr <= 'z') || (curr >= 'A' && curr <= 'Z')){
         return keyword_id(fd);
+        break;
       }else if(curr >= '0' && curr <= '9'){
         return find_num(fd);
+        break;
+      }else if(curr == '\''){
+        curr = fgetc(fd);
+        next = fgetc(fd);
+        if(next == '\''){
+          tokenval = curr;
+          return NUM;
+        }else{
+          if (curr = '\\') {
+            curr = next;
+            next = fgetc(fd);
+            printf("%c\n", curr);
+            if (next == '\''){
+              switch (curr) {
+                case 'n':
+                  tokenval = 10;
+                  return NUM;
+                  break;
+                case 't':
+                  tokenval = 9;
+                  return NUM;
+                  break;
+                case 'r':
+                  tokenval = 13;
+                  return NUM;
+                  break;
+                case 'v':
+                  tokenval = 11;
+                  return NUM;
+                  break;
+                default:
+                  return LEXERROR;
+                  break;
+                  }
+                }
+              }
+            }
       }else if(curr == EOF){
         return DONE;
       }
