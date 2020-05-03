@@ -166,6 +166,10 @@ int matches_token(FILE *fd){
       tokenval = MULTIPLY;
       return BINOP;
       break;
+    case '-':
+      tokenval = MINUS;
+      return BINOP;
+      break;
     case '+':
       tokenval = PLUS;
       return BINOP;
@@ -258,6 +262,10 @@ int matches_token(FILE *fd){
       tokenval = SEMICOLON;
       return PUNCT;
       break;
+    case ',':
+      tokenval = COMMA;
+      return PUNCT;
+      break;
     case '/':
       curr = fgetc(fd);
       if (curr == '/'){
@@ -287,6 +295,8 @@ int matches_token(FILE *fd){
         return keyword_id(fd);
       }else if(curr >= '0' && curr <= '9'){
         return find_num(fd);
+      }else if(curr == EOF){
+        return DONE;
       }
       else{
         return LEXERROR;

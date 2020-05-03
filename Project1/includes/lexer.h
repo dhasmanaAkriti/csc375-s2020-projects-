@@ -70,6 +70,7 @@ typedef enum {STARTTOKEN,
               LP,
               RP,
               SEMICOLON,
+              COMMA,
               DONE,
               ENDTOKEN,
             } tokenT;

@@ -46,7 +46,7 @@ void lexer_emit(int t, int tval) {
       printf("WRITELN \n");
       break;
     case RETURN:
-      printf("RETURN");
+      printf("RETURN\n");
       break;
     case DONE:
       printf("%s\n", "DONE");
@@ -103,6 +103,8 @@ void lexer_emit(int t, int tval) {
         char Punctuation[20] = "RP";
       }else if (tval == SEMICOLON) {
         char Punctuation[20] = "SEMICOLON";
+      }else if (tval == COMMA) {
+          char Punctuation[20] = "COMMA";
       }
       printf("PUNCT.%s\n", Punctuation );
       break;
