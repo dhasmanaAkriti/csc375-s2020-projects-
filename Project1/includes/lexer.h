@@ -88,6 +88,7 @@ extern int  tokenval;  // its value (for a numeric literal it could be its
                        // symbol table, ...)
 // the current source code line number
 extern char* string_so_far;
+extern char curr;
 extern int  src_lineno;
 
 // MACROS DEFINITIONS:  in general, use functions rather than macros as the

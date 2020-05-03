@@ -13,33 +13,44 @@ void lexer_emit(int t, int tval) {
   switch(t) {
     case NUM:
       printf("NUM.%d\n", tval);
+      break;
     case ID:
       printf("ID.%s\n", lexbuf);
+      break;
   // Keyword
     case IF:
       printf("IF\n");
       break;
     case INT:
       printf("INT\n");
+      break;
     case CHAR:
       printf("CHAR\n");
+      break;
     case WHILE:
       printf("WHILE\n");
       break;
     case BREAK:
       printf("BREAK\n");
+      break;
     case ELSE:
       printf("ELSE\n");
+      break;
     case READ:
       printf("READ \n");
+      break;
     case WRITE:
       printf("WRITE \n");
+      break;
     case WRITELN:
       printf("WRITELN \n");
+      break;
     case RETURN:
       printf("RETURN");
+      break;
     case DONE:
       printf("%s\n", "DONE");
+      break;
     case UNOP:
       if (tval == ASSIGN){
         char Binary_operatorp[20] = "ASSIGN";
@@ -47,6 +58,7 @@ void lexer_emit(int t, int tval) {
         char Binary_operator[20] = "NOT";
       }
       printf("UNOP.%s\n", Binary_operator);
+      break;
     case BINOP:
       if (tval == PLUS){
         char operator[20] = "PLUS";
@@ -75,6 +87,7 @@ void lexer_emit(int t, int tval) {
         char operator[20] = "OR";
       }
       printf("BINOP.%s\n", operator);
+      break;
     case PUNCT:
       if (tval == LCB){
         char Punctuation[20] = "LCB";
@@ -92,8 +105,9 @@ void lexer_emit(int t, int tval) {
         char Punctuation[20] = "SEMICOLON";
       }
       printf("PUNCT.%s\n", Punctuation );
+      break;
     default:
-      printf("token %c\n", tval);
+      printf("token %s\n", curr);
       break;
   }
 }

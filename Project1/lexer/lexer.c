@@ -48,7 +48,7 @@ int lexan(FILE *fd) {
   lexer_debug1("in lexan, message = %s\n", "hello there");
 
 
-  if(curr == EOF){
+  if(feof(fd)){
     return DONE;}
   else{
     curr = fgetc(fd);
@@ -65,6 +65,22 @@ static void print_lineno() {
 
 }
 
+static int find_num(FILE *fd){
+  lexbuf[size - 1] = curr;
+  size = size + 1;
+  next = fgetc(fd);
+  while (next >= '0' && next <= '9'){
+    curr = next;
+    next = fgetc(fd);
+    lexbuf[size - 1] = curr;
+    size = size + 1;
+  }
+
+  tokenval = atoi(lexbuf);
+  ungetc(next, fd);
+  return NUM;
+}
+
 static int keyword_id(FILE *fd){
   next = fgetc(fd);
   // printf("%c\n", next );
@@ -78,18 +94,6 @@ static int keyword_id(FILE *fd){
   size = size + 1;
 
   ungetc(next, fd);
-  if (curr >= '0' && curr <= '9'){
-      tokenval = atoi(string_so_far);
-      if(tokenval == 0){
-        if(curr = '0'){
-          return NUM;
-        }else{
-          return LEXERROR;
-        }
-      }else{
-        return NUM;
-      }
-  }else{
   //  printf("%s\n", lexbuf);
     if(strcmp(lexbuf, "break")== 0){
       //printf("%s\n",lexbuf );
@@ -118,22 +122,35 @@ static int keyword_id(FILE *fd){
       return ID;
     }
   }
+
+void clear_lexbuf(){
+  for (int i = 0; i < MAXLEXSIZE; i++) {
+    lexbuf[i] = '\0';
+  }
 }
 
 int matches_token(FILE *fd){
-  lexbuf[0] = '\0';
+  clear_lexbuf();
   size = 1;
-
+  //printf("%s\n", lexbuf);
   switch (curr) {
     case '\n':
       curr = fgetc(fd);
-      matches_token(fd);
+      return matches_token(fd);
+      break;
+    case '\v':
+      curr = fgetc(fd);
+      return matches_token(fd);
       break;
     case '\t':
       curr = fgetc(fd);
-      matches_token(fd);
+      return matches_token(fd);
       break;
     case ' ':
+      curr = fgetc(fd);
+      return matches_token(fd);
+      break;
+    case '\0':
       curr = fgetc(fd);
       return matches_token(fd);
       break;
@@ -216,9 +233,11 @@ int matches_token(FILE *fd){
     case '{':
       tokenval = LCB;
       return PUNCT;
+      break;
     case '}':
       tokenval = RCB;
       return PUNCT;
+      break;
     case '(':
       tokenval = LP;
       return PUNCT;
@@ -264,10 +283,13 @@ int matches_token(FILE *fd){
       }
       break;
     default:
-      if((curr >= 'a' && curr <= 'z') || (curr >= 'A' && curr <= 'Z') || (curr >= '0' && curr <= '9') || (curr == '_')){
+      if((curr >= 'a' && curr <= 'z') || (curr >= 'A' && curr <= 'Z')){
         return keyword_id(fd);
-      }else{
-        return LEXERROR;
+      }else if(curr >= '0' && curr <= '9'){
+        return find_num(fd);
       }
+      else{
+        return LEXERROR;
+      }break;
   }
 }
