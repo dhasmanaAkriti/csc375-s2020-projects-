@@ -48,8 +48,7 @@ typedef enum {STARTTOKEN,
               ID,
               BINOP,
               UNOP,
-              PUNCT,
-              DONE,             // special "token" indicates LA is done
+              PUNCT,             // special "token" indicates LA is done
               PLUS,
               MINUS,
               DIVIDE,
@@ -71,6 +70,7 @@ typedef enum {STARTTOKEN,
               LP,
               RP,
               SEMICOLON,
+              DONE,
               ENDTOKEN,
             } tokenT;
 
@@ -87,6 +87,7 @@ extern int  tokenval;  // its value (for a numeric literal it could be its
                        // value, for an identifier it could be its entry in
                        // symbol table, ...)
 // the current source code line number
+extern char* string_so_far;
 extern int  src_lineno;
 
 // MACROS DEFINITIONS:  in general, use functions rather than macros as the

@@ -21,7 +21,8 @@ int main(int argc, char *argv[]) {
       printf("error opening file: %s\n", argv[1]);
       exit(1);
   }
-  token = IF;
+  token = lexan(fd);
+  lexer_emit(token, tokenval);
   while(token != DONE && token != LEXERROR) {
       token = lexan(fd);
       lexer_emit(token, tokenval);

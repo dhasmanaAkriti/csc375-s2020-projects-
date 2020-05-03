@@ -38,6 +38,8 @@ void lexer_emit(int t, int tval) {
       printf("WRITELN \n");
     case RETURN:
       printf("RETURN");
+    case DONE:
+      printf("%s\n", "DONE");
     case UNOP:
       if (tval == ASSIGN){
         char Binary_operatorp[20] = "ASSIGN";
