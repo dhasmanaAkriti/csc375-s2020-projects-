@@ -10,7 +10,7 @@
 #include "ast.h"
 
 // TODO: you may completely wipe out or change the contents of this file; it
-//       is just an example of how to get started on the structure of the 
+//       is just an example of how to get started on the structure of the
 //       parser program.
 
 static void program(FILE *fd, ast_node *parent);
@@ -18,12 +18,12 @@ static void parser_error(char *err_string);
 
 int lookahead;  // stores next token returned by lexer
                 // you may need to change its type to match your implementation
-                
+
 ast ast_tree;   // the abstract syntax tree
 
 /**************************************************************************/
 /*
- *  Main parser routine: parses the C-- program in input file pt'ed to by fd, 
+ *  Main parser routine: parses the C-- program in input file pt'ed to by fd,
  *                       calls the function corresponding to the start state,
  *                       checks to see that the last token is DONE,
  *                       prints a success msg if there were no parsing errors
@@ -31,7 +31,7 @@ ast ast_tree;   // the abstract syntax tree
  */
 void parse(FILE *fd)  {
 
-  // TODO: here is an example of what this function might look like, 
+  // TODO: here is an example of what this function might look like,
   //       you may completely change this:
   ast_info *s;
   ast_node *n;
@@ -48,14 +48,14 @@ void parse(FILE *fd)  {
   lookahead = lexan(fd);
   program(fd, ast_tree.root);  // program corresponds to the start state
 
-  /*
+
   // the last token should be DONE
   if (lookahead != DONE) {
-    parser_error("expected end of file");   
+    parser_error("expected end of file");
   } else {
      match(DONE, fd);
   }
-  */
+
 
 }
 /**************************************************************************/
@@ -64,7 +64,7 @@ static void parser_error(char *err_string) {
     printf("%s\n", err_string);
   }
   exit(1);
-}  
+}
 /**************************************************************************/
 /*
  *  this function corresponds to the start symbol in the LL(1) grammar
@@ -74,14 +74,41 @@ static void parser_error(char *err_string) {
  *     parent: the parent ast node  (it should be a ROOT)
  */
 static void program(FILE *fd, ast_node *parent) {
+  if (lookahead == INT || lookahead == CHAR){
+    ast_info child = create_new_ast_node_info(lookahead, 0, TYPE,
+                                    lexbuf, src_lineno);
+    ast_node child_node = create_ast_node(child);
+    add_child_node(parent, child_node);
+    lookahead = lexan(fd)
+    if (lookahead == ID){
+      ast_info child = create_new_ast_node_info(lookahead, 0, 0,
+                                      lexbuf, src_lineno);
+      ast_node child_node = create_ast_node(child);
+      add_child_node(parent, child_node);
+      func(fd, parent)
+    }else{
+      printf("%s\n", "Not syntactically valid" );
 
+    }
+  }else{
+    printf("%s\n", "Not syntactically valid" );
+
+    }
 
   parser_debug0("in program\n");
 
-  // assert is useful for testing a function's pre and post conditions 
+  // assert is useful for testing a function's pre and post conditions
   assert(parent->symbol->token == NONTERMINAL);
   assert(parent->symbol->grammar_symbol == ROOT);
+}
+
+  static void func(FILE *fd, ast_node *parent) {
+    lookahead = lexan(fd);
+    if ((lookahead == PUNCT && tokenval = SEMICOLON )||(lookahead == PUNCT && tokenval == LB)){
+      ast_info new = create_new_ast_node_info(NONTERMINAL, 0, FUNC, 0 )
+
+
+  }
 
 
 }
-
