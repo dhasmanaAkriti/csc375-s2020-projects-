@@ -39,19 +39,15 @@
 #define VARDECLIST    404
 #define FUNDEC        405
 #define FUNDECLISTHELPER   406
-#define PARADECLIST   407       // a list of variable declarations
-#define PARADECLISTTAIL 408
-#define PARADECLIST   409
+#define PARAMDECLIST   407       // a list of variable declarations
+#define PARAMDECLISTTAIL 408
 #define PARAFOLLOW   410
 #define PARADEC1     411
 #define  C            412
 #define  BLOCK        413
-#define  TYPE         414
 #define  STMTLIST     415
 #define  D            416
 #define  STMT         417
-#define  RE_DECISION  418
-#define  WRITE_DECISION  419
 #define  PRIMARY  418
 
 #define END_AST_SYM   418       // used to specify end of valid range
