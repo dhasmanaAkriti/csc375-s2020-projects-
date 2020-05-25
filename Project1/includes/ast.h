@@ -63,7 +63,7 @@
 #ifndef __AST__H__
 #define __AST__H__
 
-#define AST_CHILDREN 2
+#define AST_CHILDREN 6
 #define MAXTOKEN_LEN 30
 #define MAXTOKENVAL_LEN 30
 #define MAXSYM_LEN 30

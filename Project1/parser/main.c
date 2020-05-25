@@ -14,7 +14,7 @@ int main(int argc, char *argv[]) {
 
   FILE *fd = 0;
 
-  if(argc != 2) { 
+  if(argc != 2) {
     printf("usage: parser filename.c--\n");
     exit(1);
   }
@@ -25,7 +25,7 @@ int main(int argc, char *argv[]) {
   }
 
   // parser_init();  // if you need to init any global parser state
-  
+
   parse(fd);
   printf("**********************************************\n");
   print_ast(ast_tree, print_my_ast_node);
@@ -33,11 +33,11 @@ int main(int argc, char *argv[]) {
 
   destroy_ast(&ast_tree);
   exit(0);     /*  successful termination  */
-  
+
 }
 /*********************************************************************/
 
-// this is an example of how to define output strings corresponding to 
+// this is an example of how to define output strings corresponding to
 // different ast node state that is used by the print_ast_node function:
 static char *t_strings[] = {"int", "char", "if", "num", "DONE"};
 
@@ -55,13 +55,16 @@ void print_my_ast_node(ast_info *t) {
 
   if(t != NULL) {
     if((t->token >= STARTTOKEN) && (t->token <= ENDTOKEN)) {
-
-      printf("%s", t_strings[(t->token - STARTTOKEN)]);
-
+      if(t->token == PUNCT) {
+        printf("%s", t_strings[(t->token)]);
+        printf("%s", t_strings[(t->value)]);
+      }else{
+        printf("%s", t_strings[(t->token)]);
+      }
     }
     else if ((t->token == NONTERMINAL)) {
-       if((t->grammar_symbol >= START_AST_SYM) 
-           && (t->grammar_symbol <= END_AST_SYM)) 
+       if((t->grammar_symbol >= START_AST_SYM)
+           && (t->grammar_symbol <= END_AST_SYM))
        {
            printf("%s", non_term_strings[(t->grammar_symbol - START_AST_SYM)]);
        }

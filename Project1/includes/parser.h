@@ -41,12 +41,12 @@
 #define FUNDECLISTHELPER   406
 #define PARAMDECLIST   407       // a list of variable declarations
 #define PARAMDECLISTTAIL 408
-#define PARAFOLLOW   410
-#define PARADEC1     411
-#define  C            412
+#define PARAMFOLLOW   410
+#define PARAMDEC1     411
+#define  CNEW           412
 #define  BLOCK        413
 #define  STMTLIST     415
-#define  D            416
+#define  DNEW            416
 #define  STMT         417
 #define  PRIMARY  418
 
