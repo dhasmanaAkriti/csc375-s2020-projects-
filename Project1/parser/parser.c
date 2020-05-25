@@ -14,7 +14,7 @@
 //       parser program.
 
 static void program(FILE *fd, ast_node *parent);
-static void parser_error(char *err_string);
+static void parser_error(src_lineno);
 
 int lookahead;  // stores next token returned by lexer
                 // you may need to change its type to match your implementation
@@ -40,7 +40,7 @@ void parse(FILE *fd)  {
   s = create_new_ast_node_info(NONTERMINAL, 0, ROOT, 0, 0);
   n = create_ast_node(s);
   if(init_ast(&ast_tree, n)) {
-        parser_error("ERROR: bad AST\n");
+        parser_error(src_lineno);
   }
 
   // lookahead is a global variable holding the next token
@@ -51,7 +51,7 @@ void parse(FILE *fd)  {
 
   // the last token should be DONE
   if (lookahead != DONE) {
-    parser_error("expected end of file");
+    printf("expected end of file");
   } else {
      //match(DONE, fd);
   }
@@ -59,10 +59,8 @@ void parse(FILE *fd)  {
 
 }
 /**************************************************************************/
-static void parser_error(char *err_string) {
-  if(err_string) {
-    printf("%s\n", err_string);
-  }
+static void parser_error(int lineno) {
+  printf("Error on line %d. \n", lineno);
   exit(1);
 }
 /**************************************************************************/
@@ -196,7 +194,6 @@ void FunDec(FILE *fd, ast_node *parent) {
     }
   }
 }
-
 
 void FunDecListHelper(FILE *fd, ast_node *parent) {
   ast_info *FunDecListHelper_info = create_new_ast_node_info(NONTERMINAL, 0, FunDecListHelper, lexbuf, src_lineno);
@@ -361,8 +358,8 @@ void D(FILE *fd, ast_node *parent) {
 }
 
 void Stmt(FILE *fd, ast_node *parent){
-  ast_info stmt_info = create_new_ast_node_info(NONTERMINAL, 0, STMTLIST, lexbuf, src_lineno);
-  ast_node stmt_node = create_ast_node(stmt_info);
+  ast_info *stmt_info = create_new_ast_node_info(NONTERMINAL, 0, STMTLIST, lexbuf, src_lineno);
+  ast_node *stmt_node = create_ast_node(stmt_info);
   if(lookahead ==  IF){
     ast_info *if_info = create_new_ast_node_info(IF, 0, 0, lexbuf, src_lineno);
     ast_node *if_node = create_ast_node(if_info);
@@ -389,14 +386,15 @@ void Stmt(FILE *fd, ast_node *parent){
           Stmt(fd, stmt_node);
           add_child_node(parent, stmt_node);
         }else{
-          parser_error
+          parser_error(src_lineno);
         }
       }else{
-        parser_error
-      }else{
-        parser_error
+        parser_error(src_lineno);
       }
-    }else if(lookahead == WHILE){
+    }else{
+        parser_error(src_lineno);
+      }
+  }else if(lookahead == WHILE){
       ast_info *while_info = create_new_ast_node_info(IF, 0, 0, lexbuf, src_lineno);
       ast_node *while_node = create_ast_node(while_info);
       add_child_node(stmt_node, while_node);
@@ -416,10 +414,10 @@ void Stmt(FILE *fd, ast_node *parent){
           Stmt(fd, stmt_node);
           add_child_node(parent, stmt_node);
         }else{
-          parser_error
+          parser_error(src_lineno);
         }
       }else{
-        parser_error
+        parser_error(src_lineno);
       }
     }else if(lookahead ==  PUNCT && tokenval == SEMICOLON){
       ast_info *punct12_info = create_new_ast_node_info(PUNCT, SEMICOLON, 0, lexbuf, src_lineno);
@@ -427,38 +425,462 @@ void Stmt(FILE *fd, ast_node *parent){
       add_child_node(stmt_node, punct12_node);
       add_child_node(parent, stmt_node);
 
-    } else if(lookahead == RETURN || ookahead == WRITE ){
+    } else if(lookahead == RETURN || lookahead == WRITE ){
       ast_info *punct13_info = create_new_ast_node_info(lookahead, 0, 0, lexbuf, src_lineno);
       ast_node *punct13_node = create_ast_node(punct13_info);
       add_child_node(stmt_node, punct13_node);
-      lookahead(fd);
+      lookahead = lexan(fd);
       expr(fd, punct13_node);
-      lookahead(fd);
+      lookahead = lexan(fd);
       if(lookahead ==  PUNCT && tokenval == SEMICOLON){
         ast_info *punct12_info = create_new_ast_node_info(PUNCT, SEMICOLON, 0, lexbuf, src_lineno);
         ast_node *punct12_node = create_ast_node(punct12_info);
         add_child_node(stmt_node, punct12_node);
         add_child_node(parent, stmt_node);
       }else{
-        parse_error;
+        parser_error(src_lineno);
       }
-    }else if(lookahead == BREAK || ookahead == WRITELN ){
+    }else if(lookahead == BREAK || lookahead == WRITELN ){
       ast_info *punct13_info = create_new_ast_node_info(lookahead, 0, 0, lexbuf, src_lineno);
       ast_node *punct13_node = create_ast_node(punct13_info);
       add_child_node(stmt_node, punct13_node);
-      lookahead(fd);
+      lookahead = lexan(fd);
       if(lookahead ==  PUNCT && tokenval == SEMICOLON){
         ast_info *punct12_info = create_new_ast_node_info(PUNCT, SEMICOLON, 0, lexbuf, src_lineno);
         ast_node *punct12_node = create_ast_node(punct12_info);
         add_child_node(stmt_node, punct12_node);
         add_child_node(parent, stmt_node);
       }else{
-        parse_error
+        parser_error(src_lineno);
       }
     }else if(lookahead == PUNCT && tokenval == LCB){
       block(fd, stmt_node);
-      dd_child_node(parent, stmt_node);
+      add_child_node(parent, stmt_node);
     }else{
       expr(fd, stmt_node);
     }
+}
+
+void expr(FILE *fd, ast_node *parent){
+  if (lookahead == BINOP && tokenval == MINUS){
+    ast_info *expr_info = create_new_ast_node_info(NONTERMINAL, 0, EXPR, 0, src_lineno);
+    ast_node *expr_node = create_ast_node(expr_info);
+
+    ast_info *punct14_info = create_new_ast_node_info(BINOP, MINUS, 0, lexbuf, src_lineno);
+    ast_node *punct14_node = create_ast_node(punct14_info);
+
+    add_child_node(expr_node, punct14_node);
+
+    lookahead = lexan(fd);
+
+    expr(fd, expr_node);
+
+    add_child_node(parent, expr_node);
+
+  }else if (lookahead == ID){
+    ast_info *expr_info = create_new_ast_node_info(NONTERMINAL, 0, EXPR, 0, src_lineno);
+    ast_node *expr_node = create_ast_node(expr_info);
+
+    ast_info *ID_info = create_new_ast_node_info(ID, 0, 0, lexbuf, src_lineno);
+    ast_node *ID_node = create_ast_node(ID_info);
+
+    add_child_node(expr_node, ID_node);
+
+    lookahead = lexan(fd);
+
+    if(lookahead == BINOP && tokenval == E){
+      ast_info *eq_info = create_new_ast_node_info(BINOP, E, 0, lexbuf, src_lineno);
+      ast_node *eq_node = create_ast_node(eq_info);
+
+      add_child_node(expr_node, eq_node);
+
+      lookahead = lexan(fd);
+
+      expr_zero(fd, expr_node);
+
+      add_child_node(parent, expr_node);
+
+    }else if (lookahead == PUNCT && tokenval == LB){
+      ast_info *lb_info = create_new_ast_node_info(PUNCT, LB, 0, lexbuf, src_lineno);
+      ast_node *lb_node = create_ast_node(lb_info);
+
+      add_child_node(expr_node, lb_node);
+
+      lookahead = lexan(fd);
+
+      expr_zero(fd, expr_node);
+
+      lookahead = lexan(fd);
+
+      if (lookahead == PUNCT && tokenval == RB){
+        ast_info *rb_info = create_new_ast_node_info(PUNCT, RB, 0, lexbuf, src_lineno);
+        ast_node *rb_node = create_ast_node(lb_info);
+
+        add_child_node(expr_node, rb_node);
+
+          if(lookahead == BINOP && tokenval == E){
+            ast_info *eq_info = create_new_ast_node_info(BINOP, E, 0, lexbuf, src_lineno);
+            ast_node *eq_node = create_ast_node(eq_info);
+
+            add_child_node(expr_node, eq_node);
+
+            lookahead = lexan(fd);
+
+            expr_zero(fd, expr_node);
+
+            add_child_node(parent, expr_node);
+          }else{
+            parser_error(src_lineno);
+          }
+      }else{
+        parser_error(src_lineno);
+      }
+    }else{
+      parser_error(src_lineno);
+    }
+  }else{
+    ast_info *expr_info = create_new_ast_node_info(NONTERMINAL, 0, EXPR, 0, src_lineno);
+    ast_node *expr_node = create_ast_node(expr_info);
+
+    expr_zero(fd, expr_node);
+
+    add_child_node(parent, expr_node);
+  }
+}
+
+void expr_zero(FILE *fd, ast_node *parent){
+  ast_info *expr_0_info = create_new_ast_node_info(NONTERMINAL, 0, EXPRZERO, 0, src_lineno);
+  ast_node *expr_0_node = create_ast_node(expr_0_info);
+
+  expr_one(fd, expr_0_node);
+  lookahead = lexan(fd);
+
+  expr_zero_dash(fd, expr_0_node);
+
+  add_child_node(parent, expr_0_node);
+}
+
+void expr_one(FILE *fd, ast_node *parent){
+  ast_info *expr_1_info = create_new_ast_node_info(NONTERMINAL, 0, EXPRONE, 0, src_lineno);
+  ast_node *expr_1_node = create_ast_node(expr_1_info);
+
+
+  expr_two(fd, expr_1_node);
+  lookahead = lexan(fd);
+
+  expr_one_dash(fd, expr_1_node);
+
+  add_child_node(parent, expr_1_node);
+}
+
+void expr_zero_dash(FILE *fd, ast_node *parent){
+  ast_info *expr_0_dash_info = create_new_ast_node_info(NONTERMINAL, 0, EXPRZERODASH, 0, src_lineno);
+  ast_node *expr_0_dash_node = create_ast_node( expr_0_dash_info);
+
+  if(lookahead == BINOP && tokenval == OR){
+    ast_info *or_info = create_new_ast_node_info(BINOP, OR, 0, 0, src_lineno);
+    ast_node *or_node = create_ast_node( or_info);
+
+    add_child_node(expr_0_dash_node, or_node);
+
+    lookahead = lexan(fd);
+    expr_one(fd, expr_0_dash_node);
+
+    lookahead = lexan(fd);
+    expr_zero_dash(fd, expr_0_dash_node);
+
+    add_child_node(parent, expr_0_dash_node);
+
+  }
+}
+
+void expr_two(FILE *fd, ast_node *parent){
+  ast_info *expr_two_info = create_new_ast_node_info(NONTERMINAL, 0, EXPRTWO, 0, src_lineno);
+  ast_node *expr_two_node = create_ast_node(expr_two_info);
+
+
+  expr_three(fd, expr_two_node);
+  lookahead = lexan(fd);
+
+  expr_two_dash(fd, expr_two_node);
+
+  add_child_node(parent, expr_two_node);
+
+}
+
+void expr_one_dash(FILE *fd, ast_node *parent){
+  ast_info *expr_one_dash_info = create_new_ast_node_info(NONTERMINAL, 0, EXPRONEDASH, 0, src_lineno);
+  ast_node *expr_one_dash_node = create_ast_node( expr_one_dash_info);
+
+  if(lookahead == BINOP && tokenval == AND){
+    ast_info *and_info = create_new_ast_node_info(BINOP, AND, 0, 0, src_lineno);
+    ast_node *and_node = create_ast_node(and_info);
+
+    add_child_node(expr_one_dash_node, and_node);
+
+    lookahead = lexan(fd);
+    expr_two(fd, expr_one_dash_node);
+
+    lookahead = lexan(fd);
+    expr_one_dash(fd, expr_one_dash_node);
+
+    add_child_node(parent, expr_one_dash_node);
+
+  }
+}
+
+void expr_three(FILE *fd, ast_node *parent){
+  ast_info *expr_three_info = create_new_ast_node_info(NONTERMINAL, 0, EXPRTHREE, 0, src_lineno);
+  ast_node *expr_three_node = create_ast_node(expr_three_info);
+
+  expr_four(fd, expr_three_node);
+  lookahead = lexan(fd);
+
+  expr_three_dash(fd, expr_three_node);
+
+  add_child_node(parent, expr_three_node);
+
+}
+
+void expr_two_dash(FILE *fd, ast_node *parent){
+  ast_info *expr_two_dash_info = create_new_ast_node_info(NONTERMINAL, 0, EXPRTWODASH, 0, src_lineno);
+  ast_node *expr_two_dash_node = create_ast_node( expr_two_dash_info);
+
+  if(lookahead == BINOP && (tokenval == E || tokenval == NE)){
+    ast_info *e_info = create_new_ast_node_info(BINOP, E, 0, 0, src_lineno);
+    ast_node *e_node = create_ast_node(e_info);
+
+    add_child_node(expr_two_dash_node, e_node);
+
+    lookahead = lexan(fd);
+    expr_three(fd, expr_two_dash_node);
+
+    lookahead = lexan(fd);
+    expr_two_dash(fd, expr_two_dash_node);
+
+    add_child_node(parent, expr_two_dash_node);
+
+  }
+}
+
+void expr_four(FILE *fd, ast_node *parent){
+  ast_info *expr_four_info = create_new_ast_node_info(NONTERMINAL, 0, EXPRFOUR, 0, src_lineno);
+  ast_node *expr_four_node = create_ast_node(expr_four_info);
+
+  expr_five(fd, expr_four_node);
+  lookahead = lexan(fd);
+
+  expr_four_dash(fd, expr_four_node);
+
+  add_child_node(parent, expr_four_node);
+
+}
+
+void expr_three_dash(FILE *fd, ast_node *parent){
+  ast_info *expr_three_dash_info = create_new_ast_node_info(NONTERMINAL, 0, EXPRTHREEDASH, 0, src_lineno);
+  ast_node *expr_three_dash_node = create_ast_node( expr_three_dash_info);
+
+  if(lookahead == BINOP && (tokenval == GT || tokenval == LT ||tokenval == LE ||tokenval == GE )){
+    ast_info *rel_info = create_new_ast_node_info(BINOP, tokenval, 0, 0, src_lineno);
+    ast_node *rel_node = create_ast_node(rel_info);
+
+    add_child_node(expr_three_dash_node, rel_node);
+
+    lookahead = lexan(fd);
+    expr_four(fd, expr_three_dash_node);
+
+    lookahead = lexan(fd);
+    expr_three_dash(fd, expr_three_dash_node);
+
+    add_child_node(parent, expr_three_dash_node);
+
+  }
+}
+
+void expr_five(FILE *fd, ast_node *parent){
+  ast_info *expr_five_info = create_new_ast_node_info(NONTERMINAL, 0, EXPRFIVE, 0, src_lineno);
+  ast_node *expr_five_node = create_ast_node(expr_five_info);
+
+  primary(fd, expr_five_node);
+  lookahead = lexan(fd);
+
+  expr_five_dash(fd, expr_five_node);
+
+  add_child_node(parent, expr_five_node);
+
+}
+
+void expr_four_dash(FILE *fd, ast_node *parent){
+  ast_info *expr_four_dash_info = create_new_ast_node_info(NONTERMINAL, 0, EXPRFOURDASH, 0, src_lineno);
+  ast_node *expr_four_dash_node = create_ast_node( expr_four_dash_info);
+
+  if(lookahead == BINOP && (tokenval == PLUS || tokenval == MINUS )){
+    ast_info *pm_info = create_new_ast_node_info(BINOP, tokenval, 0, 0, src_lineno);
+    ast_node *pm_node = create_ast_node(pm_info);
+
+    add_child_node(expr_four_dash_node, pm_node);
+
+    lookahead = lexan(fd);
+    expr_five(fd, expr_four_dash_node);
+
+    lookahead = lexan(fd);
+    expr_four_dash(fd, expr_four_dash_node);
+
+    add_child_node(parent, expr_four_dash_node);
+
+  }
+}
+
+void expr_five_dash(FILE *fd, ast_node *parent){
+  ast_info *expr_five_dash_info = create_new_ast_node_info(NONTERMINAL, 0, EXPRFOURDASH, 0, src_lineno);
+  ast_node *expr_five_dash_node = create_ast_node( expr_five_dash_info);
+
+  if(lookahead == BINOP && (tokenval == MULTIPLY || tokenval == DIVIDE )){
+    ast_info *dm_info = create_new_ast_node_info(BINOP, tokenval, 0, 0, src_lineno);
+    ast_node *dm_node = create_ast_node(dm_info);
+
+    add_child_node(expr_five_dash_node, dm_node);
+
+    lookahead = lexan(fd);
+    primary(fd, expr_five_dash_node);
+
+    lookahead = lexan(fd);
+    expr_five_dash(fd, expr_five_dash_node);
+
+    add_child_node(parent, expr_five_dash_node);
+
+  }
+}
+
+void primary(FILE *fd, ast_node *parent){
+  ast_info *primary_info = create_new_ast_node_info(NONTERMINAL, 0, PRIMARY, 0, src_lineno);
+  ast_node *primary_node = create_ast_node(primary_info);
+  if(lookahead == ID){
+    ast_info *id_info = create_new_ast_node_info(ID, 0, 0, lexbuf, src_lineno);
+    ast_node *id_node = create_ast_node(id_info);
+
+    add_child_node(primary_node, id_node);
+
+    lookahead = lexan(fd);
+
+    id_dec(fd, id_node);
+
+    add_child_node(parent, primary_node);
+  }else if(lookahead == NUM){
+      ast_info *num_info = create_new_ast_node_info(NUM, tokenval, 0, lexbuf, src_lineno);
+      ast_node *num_node = create_ast_node(num_info);
+
+      add_child_node(primary_node, num_node);
+
+      add_child_node(parent, primary_node);
+  }else if((lookahead == PUNCT) && (tokenval == LP)){
+    ast_info *lp_info = create_new_ast_node_info(PUNCT, LP, 0, 0, src_lineno);
+    ast_node *lp_node = create_ast_node(lp_info);
+
+    add_child_node(primary_node, lp_node);
+
+    lookahead = lexan(fd);
+
+    expr(fd, primary_node);
+
+    lookahead = lexan(fd);
+
+    if((lookahead == PUNCT) && (tokenval == RP)){
+      ast_info *rp_info = create_new_ast_node_info(PUNCT, RP, 0, 0, src_lineno);
+      ast_node *rp_node = create_ast_node(rp_info);
+
+      add_child_node(primary_node, rp_node);
+
+      add_child_node(parent, primary_node);
+    }else{
+      parser_error(src_lineno);
+    }
+  }else{
+    parser_error(src_lineno);
+  }
+}
+
+void id_dec(FILE *fd, ast_node *parent){
+  if((lookahead == PUNCT) && (tokenval == LP)){
+    ast_info *id_dec_info = create_new_ast_node_info(NONTERMINAL, 0, IDDEC, 0, src_lineno);
+    ast_node *id_dec_node = create_ast_node(id_dec_info);
+
+    ast_info *lp_info = create_new_ast_node_info(PUNCT, LP, 0, 0, src_lineno);
+    ast_node *lp_node = create_ast_node(lp_info);
+
+    add_child_node(id_dec_node, lp_node);
+
+    lookahead = lexan(fd);
+
+    expr_list(fd, id_dec_node);
+
+    lookahead = lexan(fd);
+
+    if((lookahead == PUNCT) && (tokenval == RP)){
+      ast_info *rp_info = create_new_ast_node_info(PUNCT, RP, 0, 0, src_lineno);
+      ast_node *rp_node = create_ast_node(rp_info);
+
+      add_child_node(id_dec_node, rp_node);
+
+      add_child_node(parent, id_dec_node);
+    } else{
+      parser_error(src_lineno);
+    }
+  }else if((lookahead == PUNCT) && (tokenval == LB)){
+    ast_info *id_dec_info = create_new_ast_node_info(NONTERMINAL, 0, IDDEC, 0, src_lineno);
+    ast_node *id_dec_node = create_ast_node(id_dec_info);
+
+    ast_info *lb_info = create_new_ast_node_info(PUNCT, LB, 0, 0, src_lineno);
+    ast_node *lb_node = create_ast_node(lb_info);
+
+    add_child_node(id_dec_node, lb_node);
+
+    lookahead = lexan(fd);
+
+    expr(fd, id_dec_node);
+
+    lookahead = lexan(fd);
+
+    if((lookahead == PUNCT) && (tokenval == RB)){
+      ast_info *rb_info = create_new_ast_node_info(PUNCT, RB, 0, 0, src_lineno);
+      ast_node *rb_node = create_ast_node(rb_info);
+
+      add_child_node(id_dec_node, rb_node);
+
+      add_child_node(parent, id_dec_node);
+    } else{
+      parser_error(src_lineno);
+    }
+  }
+}
+
+void expr_list(FILE *fd, ast_node *parent){
+  if(lookahead == PUNCT && tokenval == COMMA){
+    ast_info *expr_list_info = create_new_ast_node_info(NONTERMINAL, 0, EXPRLIST, 0, src_lineno);
+    ast_node *expr_list_node = create_ast_node(expr_list_info);
+    expr_list_tail(fd, expr_list_node);
+    add_child_node(parent, expr_list_node);
+  }
+}
+
+void expr_list_tail(FILE *fd, ast_node *parent){
+  ast_info *expr_list_tail_info = create_new_ast_node_info(NONTERMINAL, 0, EXPRLISTTAIL, 0, src_lineno);
+  ast_node *expr_list_tail_node = create_ast_node(expr_list_tail_info);
+  expr(fd, expr_list_tail_node);
+  lookahead = lexan(fd);
+  tailfollow(fd, expr_list_tail_node);
+  add_child_node(parent, expr_list_tail_node);
+}
+
+void tailfollow(FILE *fd, ast_node *parent){
+  if(lookahead == PUNCT && tokenval== COMMA){
+    ast_info *tailfollow_info = create_new_ast_node_info(NONTERMINAL, 0, EXPRLISTTAIL, 0, src_lineno);
+    ast_node *tailfollow_node = create_ast_node(tailfollow_info);
+    ast_info *comma_info = create_new_ast_node_info(PUNCT, COMMA, 0, 0, src_lineno);
+    ast_node *comma_node = create_ast_node(comma_info);
+    add_child_node(tailfollow_node, comma_node);
+    lookahead = lexan(fd);
+    expr_list_tail(fd, tailfollow_node);
+    add_child_node(parent, tailfollow_node);
+  }
 }

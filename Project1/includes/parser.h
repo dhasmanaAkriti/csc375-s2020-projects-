@@ -41,14 +41,30 @@
 #define FUNDECLISTHELPER   406
 #define PARAMDECLIST   407       // a list of variable declarations
 #define PARAMDECLISTTAIL 408
-#define PARAMFOLLOW   410
-#define PARAMDEC1     411
-#define  CNEW           412
-#define  BLOCK        413
-#define  STMTLIST     415
-#define  DNEW            416
-#define  STMT         417
-#define  PRIMARY  418
+#define PARAMFOLLOW   409
+#define PARAMDEC1     410
+#define  CNEW           411
+#define  BLOCK        412
+#define  STMTLIST     413
+#define  DNEW         414
+#define  STMT         415
+#define  PRIMARY      416
+#define  IDDEC        417
+#define  EXPR         418
+#define  EXPRLIST     419
+#define  EXPRLISTTAIL 420
+#define  EXPRZERO     421
+#define  EXPRZERODASH 422
+#define  EXPRONE      423
+#define  EXPRONEDASH  424
+#define  EXPRTWO      425
+#define  EXPRTWODASH  426
+#define  EXPRTHREE    427
+#define  EXPRTHREEDASH 428
+#define  EXPRFOUR     429
+#define  EXPRFOURDASH 430
+#define  EXPRFIVE     431
+#define  EXPRFIVEDASH 432
 
 #define END_AST_SYM   418       // used to specify end of valid range
 
