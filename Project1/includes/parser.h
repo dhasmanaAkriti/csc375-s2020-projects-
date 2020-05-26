@@ -65,8 +65,9 @@
 #define  EXPRFOURDASH 430
 #define  EXPRFIVE     431
 #define  EXPRFIVEDASH 432
+#define  TAILFOLLOW   433
 
-#define END_AST_SYM   418       // used to specify end of valid range
+#define END_AST_SYM   433       // used to specify end of valid range
 
 
 // add global variable definitions:

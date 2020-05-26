@@ -35,7 +35,8 @@
 // either use an enumerated type def or #defines to define token values:
 // (i.e. use IF in your code rather than 3 for the token value of keyword if)
 typedef enum {STARTTOKEN,
-              INT, CHAR,        // types
+              INT,
+              CHAR,        // types
               IF,
               ELSE,
               WHILE,
@@ -61,7 +62,6 @@ typedef enum {STARTTOKEN,
               GE,
               AND,
               OR,
-              ASSIGN,
               NOT,
               LCB,
               RCB,
@@ -71,8 +71,9 @@ typedef enum {STARTTOKEN,
               RP,
               SEMICOLON,
               COMMA,
+              ASSIGN,
               DONE,
-              ENDTOKEN,
+              ENDTOKEN
             } tokenT;
 
 // GLOBAL VARIABLE DEFS: for global variable that are used in more than one .c:
