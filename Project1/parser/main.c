@@ -40,12 +40,10 @@ int main(int argc, char *argv[]) {
 // this is an example of how to define output strings corresponding to
 // different ast node state that is used by the print_ast_node function:
 static char *t_strings[] = {"int", "char", "if", "else", "while", "break",
-                            "write", "writeln", "read", "return", "num", "DONE",
-                            "BINOP", };
+                            "write", "writeln", "read", "return", "num", "id", "BINOP",
+                            "UNOP","PUNCT", "+", "-", "*", "=", "!=", "<", "<=",">", ">=", "&&",
+                            "||", "!", "{", "}", "[", "]", "(", ")", ";", ",", "=" };
 
-DIVIDE,
-static char *t_strings2[] = {"+", "-", "*", "=", "!=", "<", "<=",">", ">=", "&&",
-                            "||", "!", "{", "}", "[", "]", "(", ")", ";", ","};
 
 static char *non_term_strings[] = { "start_ast_sym", "root","program", "func", "fundeclist", "vardeclist",
   "fundec",
@@ -70,8 +68,8 @@ static char *non_term_strings[] = { "start_ast_sym", "root","program", "func", "
    "expronedash",
    "exprtwo",
    "exprtwodash",
-   "exprthree”,
-   “exprthreedash",
+   "exprthree",
+   "exprthreedash",
    "exprfour",
    "exprfourdash",
    "exprfive",
@@ -91,7 +89,7 @@ void print_my_ast_node(ast_info *t) {
   if(t != NULL) {
     if((t->token >= STARTTOKEN) && (t->token <= ENDTOKEN)) {
       if(t->token == PUNCT) {
-        printf("%s", t_strings2[(t->token)]);
+        printf("%s", t_strings[(t->token)]);
       }else if(t->token == ID){
         printf("ID: %s",lexbuf);
       }else if(t->token == NUM){

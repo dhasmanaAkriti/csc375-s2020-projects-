@@ -480,8 +480,8 @@ void expr(FILE *fd, ast_node *parent){
 
     lookahead = lexan(fd);
 
-    if(lookahead == BINOP && tokenval == E){
-      ast_info *eq_info = create_new_ast_node_info(BINOP, E, 0, lexbuf, src_lineno);
+    if(lookahead == BINOP && tokenval == ASSIGN){
+      ast_info *eq_info = create_new_ast_node_info(BINOP, ASSIGN, 0, lexbuf, src_lineno);
       ast_node *eq_node = create_ast_node(eq_info);
 
       add_child_node(expr_node, eq_node);
