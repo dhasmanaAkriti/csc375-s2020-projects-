@@ -86,21 +86,13 @@ void program(FILE *fd, ast_node *parent) {
       func(fd, prog);
       add_child_node(parent, prog);
     }else{
-      parser_error( "Not syntactically valid" );
+      parser_error(src_lineno );
 
     }
   }else{
-    parser_error("Not syntactically valid" );
+    parser_error(src_lineno);
 
     }
-
-
-  parser_debug0("in program\n");
-
-  // assert is useful for testing a function's pre and post conditions
-  assert(parent->symbol->token == NONTERMINAL);
-  assert(parent->symbol->grammar_symbol == ROOT);
-
 }
 
 void func(FILE *fd, ast_node *parent){
@@ -116,7 +108,7 @@ void func(FILE *fd, ast_node *parent){
       FunDecListHelper(fd, func_node);
       add_child_node(parent, func_node);
     }else{
-      //error condition
+      parser_error(src_lineno);
     }
 }
 
@@ -128,44 +120,44 @@ void VardecList(FILE *fd, ast_node *parent) {
     ast_node *new_node_1 = create_ast_node(s);
     add_child_node(vardeclist_node, new_node_1);
   }else if(lookahead == PUNCT && tokenval ==  LB){
-    ast_info *vardec_info = create_new_ast_node_info(NONTERMINAL, 0, VARDECLIST, lexbuf, src_lineno);
-    ast_node *vardec_node = create_ast_node(vardec_info);
+    ast_info *vardeclist_info = create_new_ast_node_info(NONTERMINAL, 0, VARDECLIST, lexbuf, src_lineno);
+    ast_node *vardeclist_node = create_ast_node(vardeclist_info);
     ast_info *s = create_new_ast_node_info(PUNCT, LB, 0, lexbuf, src_lineno);
     ast_node *new_node_1 = create_ast_node(s);
-    add_child_node(vardec_node, new_node_1);
+    add_child_node(vardeclist_node, new_node_1);
 
     lookahead = lexan(fd);
 
     if(lookahead == NUM ){
       ast_info *num_info  = create_new_ast_node_info(NUM, tokenval, 0,lexbuf, src_lineno);
       ast_node *num_node = create_ast_node(num_info);
-      add_child_node(vardec_node, num_node);
+      add_child_node(vardeclist_node, num_node);
 
       lookahead = lexan(fd);
 
       if(lookahead == PUNCT && tokenval ==  RB){
         ast_info *RB_info = create_new_ast_node_info(PUNCT, RB, 0, lexbuf, src_lineno);
         ast_node *RB_node = create_ast_node(RB_info);
-        add_child_node(vardec_node, RB_node);
+        add_child_node(vardeclist_node, RB_node);
 
         lookahead = lexan(fd);
 
         if(lookahead == PUNCT && tokenval ==  SEMICOLON){
           ast_info *semi_info = create_new_ast_node_info(PUNCT, SEMICOLON, 0, lexbuf, src_lineno);
           ast_node *semi_node = create_ast_node(semi_info);
-          add_child_node(vardec_node, semi_node);
-          add_child_node(parent, vardec_node);
+          add_child_node(vardeclist_node, semi_node);
+          add_child_node(parent, vardeclist_node);
         }else{
-          parser_error("Not a valid follow token");
+          parser_error(src_lineno);
         }
 
       }else{
-        parser_error("Not a valid follow token");
+        parser_error(src_lineno);
       }
 
 
     } else{
-      parser_error("Not a valid follow token");
+      parser_error(src_lineno);
 
     }
   }
@@ -190,7 +182,7 @@ void FunDec(FILE *fd, ast_node *parent) {
       block(fd, fundec_node);
       add_child_node(parent, fundec_node);
     }else{
-      //error
+      parser_error(src_lineno);
     }
   }
 }
@@ -222,10 +214,10 @@ void FunDecList(FILE *fd, ast_node *parent){
       FunDecListHelper(fd, FunDecList_node);
       add_child_node(parent, FunDecList_node);
     }else{
-      //parser_error
+      parser_error(src_lineno);
     }
   }else{
-    //parser_error
+    parser_error(src_lineno);
 
   }
 
@@ -251,10 +243,10 @@ void ParamDecListTail(FILE *fd, ast_node *parent){
       add_child_node(ParamDecListTail_node, punct5_node);
       ParamFollow(fd, ParamDecListTail_node);
     }else{
-      //parser_error
+      parser_error(src_lineno);
     }
   }else{
-    //parser_error
+    parser_error(src_lineno);
   }
 }
 
@@ -281,9 +273,9 @@ void ParamDec1(FILE *fd, ast_node *parent){
     C(fd, ParamDec1_node);
     add_child_node(parent, ParamDec1_node);
     }else{
-    //parser_error
+    parser_error(src_lineno);
   }}else{
-    //parser_error
+    parser_error(src_lineno);
   }
   }
 
@@ -303,7 +295,7 @@ void C(FILE *fd, ast_node *parent){
       add_child_node (parent, C_node);}
 
   }else{
-    //parser_error
+    parser_error(src_lineno);
   }
 }
 
@@ -330,10 +322,10 @@ void block(FILE *fd, ast_node *parent){
 
       add_child_node(block_node, punct9_node);
     }else{
-      //parser_error
+      parser_error(src_lineno);
     }
   }else{
-    //parser_error
+    parser_error(src_lineno);
   }}
 
 void StmtList(FILE *fd, ast_node *parent){
@@ -351,8 +343,8 @@ void D(FILE *fd, ast_node *parent) {
   if((lookahead == PUNCT && tokenval == SEMICOLON) || lookahead ==  IF|| lookahead == WHILE ||
      lookahead == BREAK || lookahead == WRITE || lookahead == WRITELN ||lookahead == READ ||
      lookahead == RETURN || lookahead == PUNCT && tokenval == LCB){
-       // StmtList(fd,D_node);
-       add_child_node(parent, D_node);
+     StmtList(fd,D_node);
+     add_child_node(parent, D_node);
      }
 
 }
@@ -874,7 +866,7 @@ void expr_list_tail(FILE *fd, ast_node *parent){
 
 void tailfollow(FILE *fd, ast_node *parent){
   if(lookahead == PUNCT && tokenval== COMMA){
-    ast_info *tailfollow_info = create_new_ast_node_info(NONTERMINAL, 0, EXPRLISTTAIL, 0, src_lineno);
+    ast_info *tailfollow_info = create_new_ast_node_info(NONTERMINAL, 0, TAILFOLLOW, 0, src_lineno);
     ast_node *tailfollow_node = create_ast_node(tailfollow_info);
     ast_info *comma_info = create_new_ast_node_info(PUNCT, COMMA, 0, 0, src_lineno);
     ast_node *comma_node = create_ast_node(comma_info);

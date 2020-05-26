@@ -39,9 +39,44 @@ int main(int argc, char *argv[]) {
 
 // this is an example of how to define output strings corresponding to
 // different ast node state that is used by the print_ast_node function:
-static char *t_strings[] = {"int", "char", "if", "num", "DONE"};
+static char *t_strings[] = {"int", "char", "if", "else", "while", "break",
+                            "write", "writeln", "read", "return", "num", "DONE",
+                            "BINOP", };
 
-static char *non_term_strings[] = {"program", "vardecs"};
+DIVIDE,
+static char *t_strings2[] = {"+", "-", "*", "=", "!=", "<", "<=",">", ">=", "&&",
+                            "||", "!", "{", "}", "[", "]", "(", ")", ";", ","};
+
+static char *non_term_strings[] = { "start_ast_sym", "root","program", "func", "fundeclist", "vardeclist",
+  "fundec",
+  "fundeclisthelper",
+  "paramdeclist",
+  "paramdeclisttail",
+  "paramfollow",
+  "paramdec1",
+   "cnew",
+   "block",
+   "stmtlist",
+   "dnew",
+   "stmt",
+   "primary",
+   "iddec",
+   "expr",
+   "exprlist",
+   "exprlisttail",
+   "exprzero",
+   "exprzerodash",
+   "exprone",
+   "expronedash",
+   "exprtwo",
+   "exprtwodash",
+   "exprthree”,
+   “exprthreedash",
+   "exprfour",
+   "exprfourdash",
+   "exprfive",
+   "exprfivedash",
+   "tailfollow"};
 
 //
 // This is the function that is passed to print_ast, to print information
@@ -56,11 +91,14 @@ void print_my_ast_node(ast_info *t) {
   if(t != NULL) {
     if((t->token >= STARTTOKEN) && (t->token <= ENDTOKEN)) {
       if(t->token == PUNCT) {
-        printf("%s", t_strings[(t->token)]);
-        printf("%s", t_strings[(t->value)]);
+        printf("%s", t_strings2[(t->token)]);
+      }else if(t->token == ID){
+        printf("ID: %s",lexbuf);
+      }else if(t->token == NUM){
+        printf("NUM: %n",(t->value));
       }else{
-        printf("%s", t_strings[(t->token)]);
-      }
+          printf("%s", t_strings[(t->token)]);
+        }
     }
     else if ((t->token == NONTERMINAL)) {
        if((t->grammar_symbol >= START_AST_SYM)
