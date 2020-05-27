@@ -66,8 +66,13 @@
 #define  EXPRFIVE     431
 #define  EXPRFIVEDASH 432
 #define  TAILFOLLOW   433
+#define  PROGRAM      434
+#define  VARDECLISTHELPER 435
+#define  VARDECLIST 436
+#define  VARDEC 437
 
-#define END_AST_SYM   433       // used to specify end of valid range
+
+#define END_AST_SYM   437       // used to specify end of valid range
 
 
 // add global variable definitions:
@@ -77,7 +82,7 @@ extern ast ast_tree;        // the abstract syntax tree
 extern void parse(FILE *fd);
 
 // uncomment DEBUG_PARSER #define to enable debug output
-//#define DEBUG_PARSER     1
+#define DEBUG_PARSER     1
 #ifdef DEBUG_PARSER  // DEBUG_PARSER on:
 #define parser_debug0(str)            printf(str)           // 1 string arg
 #define parser_debug1(fmtstr, arg1)   printf(fmtstr,arg1)   // format str & arg

@@ -39,13 +39,13 @@ int main(int argc, char *argv[]) {
 
 // this is an example of how to define output strings corresponding to
 // different ast node state that is used by the print_ast_node function:
-static char *t_strings[] = {"int", "char", "if", "else", "while", "break",
+static char *t_strings[] = {"start_token","int", "char", "if", "else", "while", "break",
                             "write", "writeln", "read", "return", "num", "id", "BINOP",
                             "UNOP","PUNCT", "+", "-", "*", "=", "!=", "<", "<=",">", ">=", "&&",
-                            "||", "!", "{", "}", "[", "]", "(", ")", ";", ",", "=" };
+                            "||", "!", "{", "}", "[", "]", "(", ")", ";", ",", "=", "end_token"};
 
 
-static char *non_term_strings[] = { "start_ast_sym", "root","program", "func", "fundeclist", "vardeclist",
+static char *non_term_strings[] = {"root", "func", "fundeclist", "vardeclist",
   "fundec",
   "fundeclisthelper",
   "paramdeclist",
@@ -74,7 +74,11 @@ static char *non_term_strings[] = { "start_ast_sym", "root","program", "func", "
    "exprfourdash",
    "exprfive",
    "exprfivedash",
-   "tailfollow"};
+   "tailfollow",
+   "program",
+   "vardeclisthelper",
+   "vardeclist",
+   "vardec"};
 
 //
 // This is the function that is passed to print_ast, to print information
@@ -91,7 +95,7 @@ void print_my_ast_node(ast_info *t) {
       if(t->token == PUNCT) {
         printf("%s", t_strings[(t->token)]);
       }else if(t->token == ID){
-        printf("ID: %s",lexbuf);
+        printf("ID: %s", t->lexeme);
       }else if(t->token == NUM){
         printf("NUM: %n",(t->value));
       }else{
