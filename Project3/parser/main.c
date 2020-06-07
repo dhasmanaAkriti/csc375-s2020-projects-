@@ -14,7 +14,7 @@ int main(int argc, char *argv[]) {
 
   FILE *fd = 0;
 
-  if(argc != 2) {
+  if(argc != 2) { 
     printf("usage: parser filename.c--\n");
     exit(1);
   }
@@ -25,7 +25,7 @@ int main(int argc, char *argv[]) {
   }
 
   // parser_init();  // if you need to init any global parser state
-
+  
   parse(fd);
   printf("**********************************************\n");
   print_ast(ast_tree, print_my_ast_node);
@@ -33,52 +33,15 @@ int main(int argc, char *argv[]) {
 
   destroy_ast(&ast_tree);
   exit(0);     /*  successful termination  */
-
+  
 }
 /*********************************************************************/
 
-// this is an example of how to define output strings corresponding to
+// this is an example of how to define output strings corresponding to 
 // different ast node state that is used by the print_ast_node function:
-char *t_strings[] = {"start_token","int", "char", "if", "else", "while", "break",
-                            "write", "writeln", "read", "return", "num", "id", "BINOP",
-                            "UNOP","PUNCT", "+", "-", "*", "=", "!=", "<", "<=",">", ">=", "&&",
-                            "||", "!", "{", "}", "[", "]", "(", ")", ";", ",", "=", "end_token"};
+static char *t_strings[] = {"int", "char", "if", "num", "DONE"};
 
-
-char *non_term_strings[] = {"root", "func", "fundeclist", "vardeclist",
-  "fundec",
-  "fundeclisthelper",
-  "paramdeclist",
-  "paramdeclisttail",
-  "paramfollow",
-  "paramdec1",
-   "cnew",
-   "block",
-   "stmtlist",
-   "dnew",
-   "stmt",
-   "primary",
-   "iddec",
-   "expr",
-   "exprlist",
-   "exprlisttail",
-   "exprzero",
-   "exprzerodash",
-   "exprone",
-   "expronedash",
-   "exprtwo",
-   "exprtwodash",
-   "exprthree",
-   "exprthreedash",
-   "exprfour",
-   "exprfourdash",
-   "exprfive",
-   "exprfivedash",
-   "tailfollow",
-   "program",
-   "vardeclisthelper",
-   "vardeclist",
-   "vardec"};
+static char *non_term_strings[] = {"program", "vardecs"};
 
 //
 // This is the function that is passed to print_ast, to print information
@@ -92,19 +55,13 @@ void print_my_ast_node(ast_info *t) {
 
   if(t != NULL) {
     if((t->token >= STARTTOKEN) && (t->token <= ENDTOKEN)) {
-      if(t->token == PUNCT) {
-        printf("%s", t_strings[(t->token)]);
-      }else if(t->token == ID){
-        printf("ID: %s", t->lexeme);
-      }else if(t->token == NUM){
-        printf("NUM: %n",(t->value));
-      }else{
-          printf("%s", t_strings[(t->token)]);
-        }
+
+      printf("%s", t_strings[(t->token - STARTTOKEN)]);
+
     }
     else if ((t->token == NONTERMINAL)) {
-       if((t->grammar_symbol >= START_AST_SYM)
-           && (t->grammar_symbol <= END_AST_SYM))
+       if((t->grammar_symbol >= START_AST_SYM) 
+           && (t->grammar_symbol <= END_AST_SYM)) 
        {
            printf("%s", non_term_strings[(t->grammar_symbol - START_AST_SYM)]);
        }

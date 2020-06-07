@@ -53,7 +53,7 @@ void lexer_emit(int t, int tval) {
       break;
     case UNOP:
       if (tval == ASSIGN){
-        char Binary_operatorp[20] = "ASSIGN";
+        char Binary_operator[20] = "ASSIGN";
       }else{
         char Binary_operator[20] = "NOT";
       }

@@ -70,9 +70,8 @@
 #define  VARDECLISTHELPER 435
 #define  VARDECLIST 436
 #define  VARDEC 437
-
-
-#define END_AST_SYM   437       // used to specify end of valid range
+#define  EXPRFOLLOW 438
+#define END_AST_SYM   438       // used to specify end of valid range
 
 
 // add global variable definitions:

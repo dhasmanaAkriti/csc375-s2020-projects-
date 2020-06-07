@@ -5,15 +5,15 @@
 
 ////////////////////////////////////////////////////////////////////
 /*
- * initialize an ast
- *   tree: a reference to an ast struct to initialize
+ * initialize an ast 
+ *   tree: a reference to an ast struct to initialize 
  *   root_sym: a reference to the ast_node to which to init the root field
  *   returns: 0 on success, non-zero on failure
  */
 int  init_ast(ast *tree, ast_node *root_sym) {
 
   if (tree == NULL || root_sym == NULL) {
-        printf("ERROR: passing unallocated ast struct to init\n");
+        printf("ERROR: passing unallocated ast struct to init\n"); 
         return -1;
   }
   tree->root = root_sym;
@@ -27,10 +27,10 @@ int  init_ast(ast *tree, ast_node *root_sym) {
  * creates and initializes a new ast_info struct
  * the caller is responsible for freeing the returned space
  *
- *  token: the token (or NONTERMINAL for AST not representing terminals)
+ *  token: the token (or NONTERMINAL for AST not representing terminals) 
  *  value: its value (usually a symbol table entry number)
- *  grammar_sym: the grammar symbol for non-terminal ast nodes
- *  lexeme: the lexeme (may be needed for ID tokens)
+ *  grammar_sym: the grammar symbol for non-terminal ast nodes 
+ *  lexeme: the lexeme (may be needed for ID tokens)   
  *  line_no: the source code line number
  *
  * returns: a pointer to a new ast_info struct initialized to
@@ -42,7 +42,7 @@ ast_info *create_new_ast_node_info(int token, int value, int grammar_sym,
   ast_info * new_token;
 
   new_token = malloc(sizeof(ast_info));
-  if(new_token) {
+  if(new_token) { 
     new_token->token = token;
     new_token->grammar_symbol = grammar_sym;
     new_token->value = value;
@@ -65,7 +65,7 @@ int add_child_node(ast_node *parent, ast_node *child) {
 
   int n;
   if (parent == NULL || child == NULL) {
-        printf("ERROR: passing unallocated parent of child to add_node\n");
+        printf("ERROR: passing unallocated parent of child to add_node\n"); 
         return -1;
   }
   if(parent->num_children >= parent->max_children) {
@@ -78,8 +78,8 @@ int add_child_node(ast_node *parent, ast_node *child) {
               sizeof(ast_node *)*parent->max_children);
         }
   }
-  if(parent->childlist == NULL) {
-    printf("ERROR: malloc failed\n");
+  if(parent->childlist == NULL) { 
+    printf("ERROR: malloc failed\n"); 
     return -1;
   }
   n = parent->num_children;
@@ -116,7 +116,7 @@ ast_node *create_ast_node(ast_info *token) {
  */
 ast_node **get_childlist(ast_node *parent) {
   if (parent == NULL) {
-        printf("ERROR: passing unallocated parent to get_childlist\n");
+        printf("ERROR: passing unallocated parent to get_childlist\n"); 
         return NULL;
   }
   return parent->childlist;
@@ -129,7 +129,7 @@ ast_node **get_childlist(ast_node *parent) {
  */
 int get_num_children(ast_node *parent) {
   if (parent == NULL) {
-        printf("ERROR: passing unallocated parent to get_num_children\n");
+        printf("ERROR: passing unallocated parent to get_num_children\n"); 
         return -1;
   }
   return parent->num_children;
@@ -149,7 +149,7 @@ static int compute_height(ast_node *p, int h) {
         ch = compute_height((p->childlist[i]), h+1);
         if(ch > max) { max = ch; }
     }
-    return max;
+    return max; 
   }
 }
 
@@ -161,18 +161,18 @@ static char *indent_str = "       ";
 //  height: the height of the ast tree
 //  depth: the depth of this node
 //  print_func: function to call to print out the ast_info
-static void print_ast_rec(ast_node *node, int height,
-    int depth, void (*print_func)(ast_info *t))
+static void print_ast_rec(ast_node *node, int height, 
+    int depth, void (*print_func)(ast_info *t)) 
 {
 
   int i;
-  for(i = node->num_children-1; i >= 0; i--) {
+  for(i = node->num_children-1; i >= 0; i--) { 
     print_ast_rec((node->childlist[i]), height, depth+1, print_func);
   }
   for (i=0; i < depth; i++) {
     printf(" %s", indent_str);
   }
-  print_func(node->symbol);
+  print_func(node->symbol); 
   printf("\n");
 
   // comment out this part if you don't want the /'s printed
@@ -186,13 +186,13 @@ static void print_ast_rec(ast_node *node, int height,
 
 }
 /*
- * prints out the ast tree, sideways
+ * prints out the ast tree, sideways 
  *  node: the current root
  *  height: the height of the ast tree
  *  depth: the depth of this node
  *  print_func: function to call to print out the ast_info
  */
-void print_ast(ast tree, void (*print_func)(ast_info *t)) {
+void print_ast(ast tree, void (*print_func)(ast_info *t)) {      
         int n;
         n = compute_height(tree.root, 0);
         print_ast_rec(tree.root, n, 0, print_func);
@@ -230,7 +230,7 @@ void create_graphviz_format(FILE *out, ast_node *node,
   fprintf(out, "  node%d [label = \"", (int) node);
   print_func(out, node->symbol);
   fprintf(out, "\"] ;\n");
-
+  
   for (int i = 0; i < node->num_children; i++) {
     fprintf(out, "  node%d -- node%d ; \n", (int) node, (int) node->childlist[i]);
     create_graphviz_format(out, (node->childlist[i]), print_func);
@@ -243,8 +243,8 @@ static void destroy_ast_rec(ast_node *node) {
 
   int i;
 
-  if(node == NULL) { return; }
-  for(i = node->num_children-1; i >= 0; i--) {
+  if(node == NULL) { return; } 
+  for(i = node->num_children-1; i >= 0; i--) { 
     destroy_ast_rec(node->childlist[i]);
     free(node->childlist[i]);
   }
@@ -256,12 +256,12 @@ static void destroy_ast_rec(ast_node *node) {
  *              but does not free the space pointed to by tree
  *              (the assumption is that this is a statically
  *              declared struct passed by reference)
- *   tree: a reference to a ast
+ *   tree: a reference to a ast 
  */
 void  destroy_ast(ast *tree) {
   int i;
 
-  for(i = tree->root->num_children-1; i >= 0; i--) {
+  for(i = tree->root->num_children-1; i >= 0; i--) { 
         destroy_ast_rec(tree->root->childlist[i]);
         free(tree->root->childlist[i]);
   }
@@ -269,3 +269,4 @@ void  destroy_ast(ast *tree) {
   if(tree->root->childlist != NULL) { free(tree->root->childlist); }
   if(tree->root != NULL) { free(tree->root); }
 }
+
