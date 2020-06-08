@@ -167,33 +167,53 @@ void program(FILE *fd, ast_node *parent) {
 }
 
 void func(FILE *fd, ast_node *parent){
+    ast_info *Func_info = create_new_ast_node_info(NONTERMINAL, 0, FUNC,lexbuf, src_lineno);
+    ast_node *Func_node = create_ast_node(Func_info);
    if (( lookahead == PUNCT && tokenval == SEMICOLON)||(lookahead == PUNCT && tokenval == LB)){
-      VarDec(fd, parent);
-      K(fd, parent);
+     ast_info *VarDec_info = create_new_ast_node_info(NONTERMINAL, 0, VARDEC, lexbuf, src_lineno);
+     ast_node *VarDec_node = create_ast_node(VarDec_info);
+     ast_info *K_info = create_new_ast_node_info(NONTERMINAL, 0, K_, lexbuf, src_lineno);
+     ast_node *K_node = create_ast_node(K_info);
+     VarDec(fd,VarDec_node);
+     K(fd, K_node);
+    add_child_node(Func_node, VarDec_node);
+    add_child_node(Func_node, K_node);
     }else if(lookahead  == PUNCT && tokenval == LP){
-      FunDec(fd, parent);
-      FunDecListHelper(fd, parent);
+
+      ast_info *FunDec_info = create_new_ast_node_info(NONTERMINAL, 0, FUNDEC, lexbuf, src_lineno);
+      ast_node *FunDec_node = create_ast_node(FunDec_info);
+      ast_info *FunDecHelper_info = create_new_ast_node_info(NONTERMINAL, 0, FUNDECLISTHELPER, lexbuf, src_lineno);
+      ast_node *FunDecHelper_node = create_ast_node(FunDecHelper_info);
+      FunDec(fd, FunDec_node);
+      FunDecListHelper(fd, FunDecHelper_node);
+      add_child_node(Func_node, FunDec_node);
+      add_child_node(Func_node, FunDecHelper_node);
+      add_child_node(parent, Func_node);
     }else{
       parser_error(src_lineno);
     }
 }
 
 void VardecList(FILE *fd, ast_node *parent){
-  ast_info *VarDecList_info = create_new_ast_node_info(NONTERMINAL, 0, VARDECLIST,lexbuf, src_lineno);
-  ast_node *VarDecList_node = create_ast_node(VarDecList_info);
   if(match(INT, 0)|| match(CHAR, 0)){
     ast_info *type_info = create_new_ast_node_info(lookahead, 0, 0, lexbuf, src_lineno);
     ast_node *type_node = create_ast_node(type_info);
-    add_child_node(VarDecList_node, type_node);
+    add_child_node(parent, type_node);
     lookahead = lexan(fd);
     if(match(ID, 0)){
       ast_info *ID_info = create_new_ast_node_info(ID, 0, 0, lexbuf, src_lineno);
       ast_node *ID_node = create_ast_node(ID_info);
-      add_child_node(VarDecList_node, ID_node);
+      add_child_node(parent, ID_node);
       lookahead = lexan(fd);
-      VarDec(fd, VarDecList_node);
-      VarDecListHelper(fd, VarDecList_node);
-      add_child_node(parent, VarDecList_node);
+      ast_info *VarDec_info = create_new_ast_node_info(NONTERMINAL, 0, VARDEC, lexbuf, src_lineno);
+      ast_node *VarDec_node = create_ast_node(VarDec_info);
+      VarDec(fd, VarDec_node);
+      add_child_node(parent, VarDec_node);
+      ast_info *VarDecListHelper_info = create_new_ast_node_info(NONTERMINAL, 0, VARDECLISTHELPER, lexbuf, src_lineno);
+      ast_node *VarDecListHelper_node = create_ast_node(VarDecListHelper_info);
+
+      VarDecListHelper(fd,VarDecListHelper_node);
+      add_child_node(parent, VarDecListHelper_node);
     }else{
       parser_error(src_lineno);
     }
@@ -255,20 +275,22 @@ void VarDec(FILE *fd, ast_node *parent) {
 void FunDec(FILE *fd, ast_node *parent) {
   printf("FunDec\n");
   if(match(PUNCT, LP)){
-    ast_info *fundec_info = create_new_ast_node_info(NONTERMINAL, 0, FUNDEC, lexbuf, src_lineno);
-    ast_node *fundec_node = create_ast_node(fundec_info);
     ast_info *punct2_info = create_new_ast_node_info(PUNCT, LP, 0, lexbuf, src_lineno);
     ast_node *punct2_node = create_ast_node(punct2_info);
-    add_child_node(fundec_node, punct2_node);
+    add_child_node(parent, punct2_node);
     lookahead = lexan(fd);
-    ParamDecList(fd, fundec_node);
+    ast_info *ParamDecList_info = create_new_ast_node_info(NONTERMINAL, 0, PARAMDECLIST, lexbuf, src_lineno);
+    ast_node *ParamDecList_node = create_ast_node(ParamDecList_info);
+    ParamDecList(fd, ParamDecList_node);
     if(match(PUNCT, RP)){
       ast_info *punct3_info = create_new_ast_node_info(PUNCT, RP, 0, lexbuf, src_lineno);
       ast_node *punct3_node = create_ast_node(punct3_info);
-      add_child_node(fundec_node, punct3_node);
+      add_child_node(parent, punct3_node);
+      ast_info *block_info = create_new_ast_node_info(NONTERMINAL, 0, BLOCK, lexbuf, src_lineno);
+      ast_node *block_node = create_ast_node(block_info);
       lookahead = lexan(fd);
-      block(fd, fundec_node);
-      add_child_node(parent, fundec_node);
+      block(fd, block_node);
+      add_child_node(parent, block_node);
     }else{
       parser_error(src_lineno);
     }
@@ -278,20 +300,17 @@ void FunDec(FILE *fd, ast_node *parent) {
 void FunDecListHelper(FILE *fd, ast_node *parent) {
   printf("FunDecListHelper\n");
   if(match(INT, 0)||match(CHAR, 0)) {
-    ast_info *FunDecListHelper_info = create_new_ast_node_info(NONTERMINAL, 0, FUNDECLISTHELPER, lexbuf, src_lineno);
-    ast_node *FunDecListHelper_node = create_ast_node(FunDecListHelper_info);
-    FunDecList(fd, FunDecListHelper_node);
-    add_child_node(parent, FunDecListHelper_node);
+    FunDecList(fd, parent);
   }
 }
 
 void VarDecListHelper(FILE *fd, ast_node *parent) {
   printf("VarDecListHelper\n");
   if(lookahead == INT||lookahead == CHAR) {
-    ast_info *VarDecListHelper_info = create_new_ast_node_info(NONTERMINAL, 0, VARDECLISTHELPER, lexbuf, src_lineno);
-    ast_node *VarDecListHelper_node = create_ast_node(VarDecListHelper_info);
-    VardecList(fd, VarDecListHelper_node);
-    add_child_node(parent, VarDecListHelper_node);
+    ast_info *VarDecList_info = create_new_ast_node_info(NONTERMINAL, 0, VARDECLISTHELPER, lexbuf, src_lineno);
+    ast_node *VarDecList_node = create_ast_node(VarDecList_info);
+    VardecList(fd, VarDecList_node);
+    add_child_node(parent, VarDecList_node);
   }
 }
 
@@ -329,8 +348,14 @@ void FunDecList(FILE *fd, ast_node *parent){
       ast_node *ID_node = create_ast_node(ID_info);
       add_child_node(FunDecList_node, ID_node);
       lookahead = lexan(fd);
-      FunDec(fd, FunDecList_node);
-      FunDecListHelper(fd, FunDecList_node);
+      ast_info *FunDec_info = create_new_ast_node_info(NONTERMINAL, 0, FUNDEC, lexbuf, src_lineno);
+      ast_node *FunDec_node = create_ast_node(FunDec_info);
+      ast_info *FunDecHelper_info = create_new_ast_node_info(NONTERMINAL, 0, FUNDECLISTHELPER, lexbuf, src_lineno);
+      ast_node *FunDecHelper_node = create_ast_node(FunDecHelper_info);
+      FunDec(fd, FunDec_node);
+      FunDecListHelper(fd, FunDecHelper_node);
+      add_child_node(FunDecList_node, FunDec_node);
+      add_child_node(FunDecList_node, FunDecHelper_node);
       add_child_node(parent, FunDecList_node);
     }else{
       parser_error(src_lineno);
@@ -345,10 +370,7 @@ void FunDecList(FILE *fd, ast_node *parent){
 void ParamDecList(FILE *fd, ast_node *parent){
   printf("ParamDecList\n");
   if(lookahead == INT||lookahead == CHAR){
-    ast_info *ParamDecList_info = create_new_ast_node_info(NONTERMINAL, 0, PARAMDECLIST, lexbuf, src_lineno);
-    ast_node *ParamDecList_node = create_ast_node(ParamDecList_info);
-    ParamDecListTail(fd, ParamDecList_node);
-    add_child_node(parent, ParamDecList_node);
+    ParamDecListTail(fd, parent);
   }
 }
 
@@ -399,15 +421,18 @@ void ParamDec1(FILE *fd, ast_node *parent){
 }
 
 void C(FILE *fd, ast_node *parent){
+  ast_info *C_info = create_new_ast_node_info(NONTERMINAL, 0, PARAMDEC1, lexbuf, src_lineno);
+  ast_node *C_node = create_ast_node(C_info);
   if(match(PUNCT, LB)){
     ast_info *punct6_info = create_new_ast_node_info(lookahead, LB, 0, lexbuf, src_lineno);
     ast_node *punct6_node = create_ast_node(punct6_info);
-    add_child_node(parent, punct6_node);
+    add_child_node(C_node, punct6_node);
     lookahead = lexan(fd);
     if(match(PUNCT, RB)){
       ast_info *punct7_info = create_new_ast_node_info(lookahead, RB, 0, lexbuf, src_lineno);
       ast_node *punct7_node = create_ast_node(punct7_info);
-      add_child_node(parent, punct7_node);
+      add_child_node(C_node, punct7_node);
+      add_child_node(parent, C_node);
       lookahead = lexan(fd);
     }else{
       parser_error(src_lineno);
@@ -418,25 +443,30 @@ void C(FILE *fd, ast_node *parent){
 void block(FILE *fd, ast_node *parent){
   printf("block\n");
   if(match(PUNCT, LCB)){
-    ast_info *block_info = create_new_ast_node_info(NONTERMINAL, 0, BLOCK, lexbuf, src_lineno);
-    ast_node *block_node = create_ast_node(block_info);
-
     ast_info *punct8_info = create_new_ast_node_info(lookahead, LCB, 0, lexbuf, src_lineno);
     ast_node *punct8_node = create_ast_node(punct8_info);
 
-    add_child_node(block_node, punct8_node);
+    add_child_node(parent, punct8_node);
 
     lookahead = lexan(fd);
-    VarDecListHelper(fd, block_node);
+    ast_info *VarDecListHelper_info = create_new_ast_node_info(NONTERMINAL, 0, VARDECLISTHELPER, lexbuf, src_lineno);
+    ast_node *VarDecListHelper_node = create_ast_node(VarDecListHelper_info);
 
-    StmtList(fd, block_node);
+    VarDecListHelper(fd,VarDecListHelper_node);
+    add_child_node(parent, VarDecListHelper_node);
+
+    ast_info *StmtList_info = create_new_ast_node_info(NONTERMINAL, 0, STMTLIST, lexbuf, src_lineno);
+    ast_node *StmtList_node = create_ast_node(StmtList_info);
+
+    StmtList(fd, StmtList_node);
+    add_child_node(parent, StmtList_node);
 
     if(match(PUNCT, RCB)){
       ast_info *punct9_info = create_new_ast_node_info(lookahead, RCB, 0, lexbuf, src_lineno);
       ast_node *punct9_node = create_ast_node(punct9_info);
       lookahead = lexan(fd);
-      add_child_node(block_node, punct9_node);
-      add_child_node(parent, block_node);
+      add_child_node(parent, punct9_node);
+
     }else{
       parser_error(src_lineno);
     }
@@ -447,11 +477,11 @@ void block(FILE *fd, ast_node *parent){
 
 void StmtList(FILE *fd, ast_node *parent){
   printf("StmtList\n");
-  ast_info *StmtList_info = create_new_ast_node_info(NONTERMINAL, 0, STMTLIST, lexbuf, src_lineno);
-  ast_node *StmtList_node = create_ast_node(StmtList_info);
-  Stmt(fd, StmtList_node);
-  D(fd, StmtList_node);
-  add_child_node(parent, StmtList_node);
+  ast_info *stmt_info = create_new_ast_node_info(NONTERMINAL, 0, STMT, lexbuf, src_lineno);
+  ast_node *stmt_node = create_ast_node(stmt_info);
+  Stmt(fd, stmt_node);
+  D(fd, stmt_node);
+  add_child_node(parent, stmt_node);
 }
 
 void D(FILE *fd, ast_node *parent) {
@@ -460,37 +490,45 @@ void D(FILE *fd, ast_node *parent) {
      (lookahead == RETURN) || (lookahead==PUNCT && tokenval == LCB)||(lookahead==UNOP&& tokenval == ASSIGN)
      ||(lookahead==UNOP&& tokenval == NOT)||  (lookahead == INT)||   (lookahead == CHAR) ||  (lookahead == ID) || (lookahead == NUM)
      || (lookahead==PUNCT && tokenval == LP)){
-     StmtList(fd,parent);
+     ast_info *StmtList_info = create_new_ast_node_info(NONTERMINAL, 0, STMTLIST, lexbuf, src_lineno);
+     ast_node *StmtList_node = create_ast_node(StmtList_info);
+     StmtList(fd,StmtList_node);
+     add_child_node(parent, StmtList_node);
   }
 }
 
 void Stmt(FILE *fd, ast_node *parent){
   printf("Stmt\n");
-  ast_info *stmt_info = create_new_ast_node_info(NONTERMINAL, 0, STMT, lexbuf, src_lineno);
-  ast_node *stmt_node = create_ast_node(stmt_info);
-
   if(match(IF,0)){
     ast_info *if_info = create_new_ast_node_info(IF, 0, 0, lexbuf, src_lineno);
     ast_node *if_node = create_ast_node(if_info);
-    add_child_node(stmt_node, if_node);
+    add_child_node(parent, if_node);
     lookahead = lexan(fd);
     if(match(PUNCT, LP)){
       ast_info *punct10_info = create_new_ast_node_info(PUNCT, LP, 0, lexbuf, src_lineno);
       ast_node *punct10_node = create_ast_node(punct10_info);
-      add_child_node(stmt_node, punct10_node);
+      add_child_node(parent, punct10_node);
       lookahead = lexan(fd);
-      expr(fd, stmt_node);
+      ast_info *expr_info = create_new_ast_node_info(NONTERMINAL, 0, EXPR, 0, src_lineno);
+      ast_node *expr_node = create_ast_node(expr_info);
+      expr(fd, expr_node);
+      add_child_node(parent, expr_node);
       if(match(PUNCT, RP)){
         ast_info *punct11_info = create_new_ast_node_info(PUNCT, RP, 0, lexbuf, src_lineno);
         ast_node *punct11_node = create_ast_node(punct11_info);
-        add_child_node(stmt_node, punct11_node);
+        add_child_node(parent, punct11_node);
         lookahead = lexan(fd);
+        ast_info *stmt_info = create_new_ast_node_info(NONTERMINAL, 0, STMT, lexbuf, src_lineno);
+        ast_node *stmt_node = create_ast_node(stmt_info);
         Stmt(fd, stmt_node);
+        add_child_node(parent, stmt_node);
         if(match(ELSE, 0)){
           ast_info *punct12_info = create_new_ast_node_info(ELSE, 0, 0, lexbuf, src_lineno);
           ast_node *punct12_node = create_ast_node(punct11_info);
-          add_child_node(stmt_node, punct12_node);
+          add_child_node(parent, punct12_node);
           lookahead = lexan(fd);
+          ast_info *stmt_info = create_new_ast_node_info(NONTERMINAL, 0, STMT, lexbuf, src_lineno);
+          ast_node *stmt_node = create_ast_node(stmt_info);
           Stmt(fd, stmt_node);
           add_child_node(parent, stmt_node);
         }else{
@@ -505,19 +543,24 @@ void Stmt(FILE *fd, ast_node *parent){
   }else if(match(WHILE, 0)){
       ast_info *while_info = create_new_ast_node_info(IF, 0, 0, lexbuf, src_lineno);
       ast_node *while_node = create_ast_node(while_info);
-      add_child_node(stmt_node, while_node);
+      add_child_node(parent, while_node);
       lookahead = lexan(fd);
       if(match(PUNCT, LP)){
         ast_info *punct10_info = create_new_ast_node_info(PUNCT, LP, 0, lexbuf, src_lineno);
         ast_node *punct10_node = create_ast_node(punct10_info);
-        add_child_node(stmt_node, punct10_node);
+        add_child_node(parent, punct10_node);
         lookahead = lexan(fd);
-        expr(fd, stmt_node);
+        ast_info *expr_info = create_new_ast_node_info(NONTERMINAL, 0, EXPR, 0, src_lineno);
+        ast_node *expr_node = create_ast_node(expr_info);
+        expr(fd, expr_node);
+        add_child_node(parent, expr_node);
         if(match(PUNCT, RP)){
           ast_info *punct11_info = create_new_ast_node_info(PUNCT, RP, 0, lexbuf, src_lineno);
           ast_node *punct11_node = create_ast_node(punct11_info);
-          add_child_node(stmt_node, punct11_node);
+          add_child_node(parent, punct11_node);
           lookahead = lexan(fd);
+          ast_info *stmt_info = create_new_ast_node_info(NONTERMINAL, 0, STMT, lexbuf, src_lineno);
+          ast_node *stmt_node = create_ast_node(stmt_info);
           Stmt(fd, stmt_node);
           add_child_node(parent, stmt_node);
         }else{
@@ -529,21 +572,22 @@ void Stmt(FILE *fd, ast_node *parent){
     }else if(match(PUNCT, SEMICOLON)){
       ast_info *punct12_info = create_new_ast_node_info(PUNCT, SEMICOLON, 0, lexbuf, src_lineno);
       ast_node *punct12_node = create_ast_node(punct12_info);
-      add_child_node(stmt_node, punct12_node);
-      add_child_node(parent, stmt_node);
+      add_child_node(parent, punct12_node);
       lookahead = lexan(fd);
-    
+
     } else if(match(RETURN, 0) ||match(WRITE, 0)){
       ast_info *punct13_info = create_new_ast_node_info(lookahead, 0, 0, lexbuf, src_lineno);
       ast_node *punct13_node = create_ast_node(punct13_info);
-      add_child_node(stmt_node, punct13_node);
+      add_child_node(parent, punct13_node);
       lookahead = lexan(fd);
-      expr(fd, punct13_node);
+      ast_info *expr_info = create_new_ast_node_info(NONTERMINAL, 0, EXPR, 0, src_lineno);
+      ast_node *expr_node = create_ast_node(expr_info);
+      expr(fd, expr_node);
+      add_child_node(parent, expr_node);
       if(match(PUNCT, SEMICOLON)){
         ast_info *punct12_info = create_new_ast_node_info(PUNCT, SEMICOLON, 0, lexbuf, src_lineno);
         ast_node *punct12_node = create_ast_node(punct12_info);
-        add_child_node(stmt_node, punct12_node);
-        add_child_node(parent, stmt_node);
+        add_child_node(parent, punct12_node);
         lookahead = lexan(fd);
       }else{
         parser_error(src_lineno);
@@ -551,35 +595,35 @@ void Stmt(FILE *fd, ast_node *parent){
     }else if(match(BREAK, 0) || match(WRITELN, 0) ){
       ast_info *punct13_info = create_new_ast_node_info(lookahead, 0, 0, lexbuf, src_lineno);
       ast_node *punct13_node = create_ast_node(punct13_info);
-      add_child_node(stmt_node, punct13_node);
+      add_child_node(parent, punct13_node);
       lookahead = lexan(fd);
       if(match(PUNCT, SEMICOLON)){
         ast_info *punct12_info = create_new_ast_node_info(PUNCT, SEMICOLON, 0, lexbuf, src_lineno);
         ast_node *punct12_node = create_ast_node(punct12_info);
-        add_child_node(stmt_node, punct12_node);
-        add_child_node(parent, stmt_node);
+        add_child_node(parent, punct12_node);
         lookahead = lexan(fd);
       }else{
         parser_error(src_lineno);
       }
     }else if(match(PUNCT, LCB)){
-      block(fd, stmt_node);
-      add_child_node(parent, stmt_node);
+      ast_info *block_info = create_new_ast_node_info(NONTERMINAL, 0, BLOCK, lexbuf, src_lineno);
+      ast_node *block_node = create_ast_node(block_info);
+      block(fd, block_node);
+      add_child_node(parent, block_node);
     }else if(match(READ, 0)){
       ast_info *read_info = create_new_ast_node_info(READ, 0, 0, lexbuf, src_lineno);
       ast_node *read_node = create_ast_node(read_info);
-      add_child_node(stmt_node, read_node);
+      add_child_node(parent, read_node);
       lookahead = lexan(fd);
       if(match(ID, 0)){
         ast_info *id_info = create_new_ast_node_info(ID, 0, 0, lexbuf, src_lineno);
         ast_node *id_node = create_ast_node(id_info);
-        add_child_node(stmt_node, id_node);
+        add_child_node(parent, id_node);
         lookahead = lexan(fd);
         if(match(PUNCT, SEMICOLON)){
           ast_info *punct12_info = create_new_ast_node_info(PUNCT, SEMICOLON, 0, lexbuf, src_lineno);
           ast_node *punct12_node = create_ast_node(punct12_info);
-          add_child_node(stmt_node, punct12_node);
-          add_child_node(parent, stmt_node);
+          add_child_node(parent, punct12_node);
           lookahead = lexan(fd);
         }else{
           parser_error(src_lineno);
@@ -588,12 +632,14 @@ void Stmt(FILE *fd, ast_node *parent){
         parser_error(src_lineno);
       }
     }else{
-      expr(fd, stmt_node);
+      ast_info *expr_info = create_new_ast_node_info(NONTERMINAL, 0, EXPR, 0, src_lineno);
+      ast_node *expr_node = create_ast_node(expr_info);
+      expr(fd, expr_node);
+      add_child_node(parent, expr_node);
       if(match(PUNCT, SEMICOLON)){
         ast_info *punct12_info = create_new_ast_node_info(PUNCT, SEMICOLON, 0, lexbuf, src_lineno);
         ast_node *punct12_node = create_ast_node(punct12_info);
-        add_child_node(stmt_node, punct12_node);
-        add_child_node(parent, stmt_node);
+        add_child_node(parent, punct12_node);
         lookahead = lexan(fd);
       }else{
         parser_error(src_lineno);
@@ -604,43 +650,34 @@ void Stmt(FILE *fd, ast_node *parent){
 void expr(FILE *fd, ast_node *parent){
   printf("expr\n");
   if (match(BINOP,MINUS)){
-    ast_info *expr_info = create_new_ast_node_info(NONTERMINAL, 0, EXPR, 0, src_lineno);
-    ast_node *expr_node = create_ast_node(expr_info);
-
     ast_info *punct14_info = create_new_ast_node_info(BINOP, MINUS, 0, lexbuf, src_lineno);
     ast_node *punct14_node = create_ast_node(punct14_info);
 
-    add_child_node(expr_node, punct14_node);
+    add_child_node(parent, punct14_node);
 
     lookahead = lexan(fd);
+    ast_info *expr_info = create_new_ast_node_info(NONTERMINAL, 0, EXPR, 0, src_lineno);
+    ast_node *expr_node = create_ast_node(expr_info);
 
     expr(fd, expr_node);
     add_child_node(parent, expr_node);
 
   }else if (match(ID,0)){
-    ast_info *expr_info = create_new_ast_node_info(NONTERMINAL, 0, EXPR, 0, src_lineno);
-    ast_node *expr_node = create_ast_node(expr_info);
-
     ast_info *ID_info = create_new_ast_node_info(ID, 0, 0, lexbuf, src_lineno);
     ast_node *ID_node = create_ast_node(ID_info);
 
-    add_child_node(expr_node, ID_node);
+    add_child_node(parent, ID_node);
     second = lexan(fd);
-    exprfollow(fd, expr_node);
-    add_child_node(parent, expr_node);
 
+    exprfollow(fd, parent);
 
   }else{
-    ast_info *expr_info = create_new_ast_node_info(NONTERMINAL, 0, EXPR, 0, src_lineno);
-    ast_node *expr_node = create_ast_node(expr_info);
     if (match(ID, 0)){
       ast_info *ID_info = create_new_ast_node_info(ID, 0, 0, lexbuf, src_lineno);
       ast_node *ID_node = create_ast_node(ID_info);
-      add_child_node(fd, expr_node);
+      add_child_node(parent, ID_node);
     }
-    expr_zero(fd, expr_node);
-
-    add_child_node(parent, expr_node);
+    expr_zero(fd, parent);
   }
 }
 
@@ -784,7 +821,10 @@ void expr_three_dash(FILE *fd, ast_node *parent){
 }
 
 void expr_five(FILE *fd, ast_node *parent){
-  primary(fd, parent);
+  ast_info *dm_info = create_new_ast_node_info(NONTERMINAL, 0, PRIMARY, 0, src_lineno);
+  ast_node *dm_node = create_ast_node(dm_info);
+  primary(fd, dm_node);
+  add_child_node(parent, dm_node);
   expr_five_dash(fd, parent);
 
 }
@@ -814,7 +854,10 @@ void expr_five_dash(FILE *fd, ast_node *parent){
 
     add_child_node(parent, dm_node);
     lookahead = lexan(fd);
-    primary(fd, parent);
+    ast_info *prim_info = create_new_ast_node_info(NONTERMINAL, 0, PRIMARY, 0, src_lineno);
+    ast_node *prim_node = create_ast_node(prim_info);
+    primary(fd, prim_node);
+    add_child_node(parent, prim_node);
     expr_five_dash(fd, parent);
   }
 }
@@ -844,8 +887,11 @@ void primary(FILE *fd, ast_node *parent){
     add_child_node(parent, lp_node);
 
     lookahead = lexan(fd);
+    ast_info *expr_info = create_new_ast_node_info(NONTERMINAL, 0, EXPR, 0, src_lineno);
+    ast_node *expr_node = create_ast_node(expr_info);
 
-    expr(fd, parent);
+    expr(fd,expr_node);
+    add_child_node(parent, expr_node);
 
     if(match(PUNCT, RP)){
       ast_info *rp_info = create_new_ast_node_info(PUNCT, RP, 0, 0, src_lineno);
@@ -916,7 +962,10 @@ void expr_list(FILE *fd, ast_node *parent){
 }
 
 void expr_list_tail(FILE *fd, ast_node *parent){
-  expr(fd, parent);
+  ast_info *expr_info = create_new_ast_node_info(NONTERMINAL, 0, EXPR, 0, src_lineno);
+  ast_node *expr_node = create_ast_node(expr_info);
+  expr(fd, expr_node);
+  add_child_node(parent, expr_node);
   tailfollow(fd, parent);
 }
 

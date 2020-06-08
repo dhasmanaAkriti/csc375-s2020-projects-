@@ -28,7 +28,11 @@ int main(int argc, char *argv[]) {
 
   parse(fd);
   printf("**********************************************\n");
+  printf("%d", get_num_children(ast_tree.root));
+
+
   print_ast(ast_tree, print_my_ast_node);
+
   fclose(fd);
 
   destroy_ast(&ast_tree);
@@ -84,7 +88,7 @@ char *t_strings[] =  {"STARTTOKEN",
 char *non_term_strings[] = {"START_AST_SYM" , "ROOT", "PROGRAM", "FUNDECLIST", "VARDECLIST","FUNDEC",
                               "FUNDECLISTHELPER", "PARAMDECLIST",  "PARAMDEC1", "BLOCK", "STMTLIST",
                               "STMT", "PRIMARY", "EXPR", "EXPRLIST", "VARDECLISTHELPER", "VARDEC",
-                              "EXPRFOLLOW"};
+                              "EXPRFOLLOW", "FUNC", "K"};
 
 
 //

@@ -63,9 +63,9 @@
 #ifndef __AST__H__
 #define __AST__H__
 
-#define AST_CHILDREN 6
+#define AST_CHILDREN 30
 #define MAXTOKEN_LEN 30
-#define MAXTOKENVAL_LEN 30
+#define MAXTOKENVAL_LEN 2
 #define MAXSYM_LEN 30
 
 // Make sure this size matches the max lexeme size used by the lexer.

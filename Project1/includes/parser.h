@@ -50,7 +50,9 @@
 #define  VARDECLISTHELPER  415
 #define  VARDEC  416
 #define  EXPRFOLLOW  417
-#define END_AST_SYM    418
+#define  FUNC  418
+#define  K_ 419
+#define END_AST_SYM    420
 
 
 // add global variable definitions:
