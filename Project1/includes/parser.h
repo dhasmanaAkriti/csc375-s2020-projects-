@@ -32,46 +32,25 @@
 // ... add more, or feel free to change these completely
 // also, you could use an enum type here instead of #defines
 //
-#define START_AST_SYM 401       // used to specify start of valid range
-#define ROOT          401       // the root ast node
-#define FUNC          402
+#define START_AST_SYM 400
+#define ROOT          401
+#define PROGRAM       402
 #define FUNDECLIST    403
 #define VARDECLIST    404
 #define FUNDEC        405
 #define FUNDECLISTHELPER   406
-#define PARAMDECLIST   407       // a list of variable declarations
-#define PARAMDECLISTTAIL 408
-#define PARAMFOLLOW   409
-#define PARAMDEC1     410
-#define  CNEW           411
-#define  BLOCK        412
-#define  STMTLIST     413
-#define  DNEW         414
-#define  STMT         415
-#define  PRIMARY      416
-#define  IDDEC        417
-#define  EXPR         418
-#define  EXPRLIST     419
-#define  EXPRLISTTAIL 420
-#define  EXPRZERO     421
-#define  EXPRZERODASH 422
-#define  EXPRONE      423
-#define  EXPRONEDASH  424
-#define  EXPRTWO      425
-#define  EXPRTWODASH  426
-#define  EXPRTHREE    427
-#define  EXPRTHREEDASH 428
-#define  EXPRFOUR     429
-#define  EXPRFOURDASH 430
-#define  EXPRFIVE     431
-#define  EXPRFIVEDASH 432
-#define  TAILFOLLOW   433
-#define  PROGRAM      434
-#define  VARDECLISTHELPER 435
-#define  VARDECLIST 436
-#define  VARDEC 437
-#define  EXPRFOLLOW 438
-#define END_AST_SYM   438       // used to specify end of valid range
+#define PARAMDECLIST   407
+#define PARAMDEC1     408
+#define  BLOCK        409
+#define  STMTLIST     410
+#define  STMT         411
+#define  PRIMARY       412
+#define  EXPR          413
+#define  EXPRLIST      414
+#define  VARDECLISTHELPER  415
+#define  VARDEC  416
+#define  EXPRFOLLOW  417
+#define END_AST_SYM    418
 
 
 // add global variable definitions:

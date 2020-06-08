@@ -39,46 +39,53 @@ int main(int argc, char *argv[]) {
 
 // this is an example of how to define output strings corresponding to
 // different ast node state that is used by the print_ast_node function:
-char *t_strings[] = {"start_token","int", "char", "if", "else", "while", "break",
-                            "write", "writeln", "read", "return", "num", "id", "BINOP",
-                            "UNOP","PUNCT", "+", "-", "*", "=", "!=", "<", "<=",">", ">=", "&&",
-                            "||", "!", "{", "}", "[", "]", "(", ")", ";", ",", "=", "end_token"};
+char *t_strings[] =  {"STARTTOKEN",
+              "INT",
+              "CHAR",        // types
+              "IF",
+              "ELSE",
+              "WHILE",
+              "BREAK",
+              "WRITE",
+              "WRITELN",
+              "READ",
+              "RETURN",          // keyword
+              "NUM",              // integer literal
+              "ID",
+              "BINOP",
+              "UNOP",
+              "PUNCT",             // special "token" indicates LA is done
+              "+",
+              "-",
+              "/",
+              "*",
+              "==",
+              "!=",
+              "<",
+              "<=",
+              ">",
+              ">=",
+              "&&",
+              "||",
+              "!",
+              "{",
+              "}",
+              "[",
+              "]",
+              "(",
+              ")",
+              ";",
+              ",",
+              "=",
+              "DONE",
+              "ENDTOKEN"};
 
 
-char *non_term_strings[] = {"root", "func", "fundeclist", "vardeclist",
-  "fundec",
-  "fundeclisthelper",
-  "paramdeclist",
-  "paramdeclisttail",
-  "paramfollow",
-  "paramdec1",
-   "cnew",
-   "block",
-   "stmtlist",
-   "dnew",
-   "stmt",
-   "primary",
-   "iddec",
-   "expr",
-   "exprlist",
-   "exprlisttail",
-   "exprzero",
-   "exprzerodash",
-   "exprone",
-   "expronedash",
-   "exprtwo",
-   "exprtwodash",
-   "exprthree",
-   "exprthreedash",
-   "exprfour",
-   "exprfourdash",
-   "exprfive",
-   "exprfivedash",
-   "tailfollow",
-   "program",
-   "vardeclisthelper",
-   "vardeclist",
-   "vardec"};
+char *non_term_strings[] = {"START_AST_SYM" , "ROOT", "PROGRAM", "FUNDECLIST", "VARDECLIST","FUNDEC",
+                              "FUNDECLISTHELPER", "PARAMDECLIST",  "PARAMDEC1", "BLOCK", "STMTLIST",
+                              "STMT", "PRIMARY", "EXPR", "EXPRLIST", "VARDECLISTHELPER", "VARDEC",
+                              "EXPRFOLLOW"};
+
 
 //
 // This is the function that is passed to print_ast, to print information
@@ -91,9 +98,13 @@ char *non_term_strings[] = {"root", "func", "fundeclist", "vardeclist",
 void print_my_ast_node(ast_info *t) {
 
   if(t != NULL) {
-    if((t->token >= STARTTOKEN) && (t->token <= ENDTOKEN)) {
+    if((t->token > STARTTOKEN) && (t->token < ENDTOKEN)) {
       if(t->token == PUNCT) {
-        printf("%s", t_strings[(t->token)]);
+        printf("PUNCT:%s", t_strings[(t->value)]);
+      }else if(t->token == BINOP) {
+        printf("BINOP:%s", t_strings[(t->value)]);
+      }else if(t->token == UNOP) {
+        printf("UNOP:%s", t_strings[(t->value)]);
       }else if(t->token == ID){
         printf("ID: %s", t->lexeme);
       }else if(t->token == NUM){
@@ -106,7 +117,7 @@ void print_my_ast_node(ast_info *t) {
        if((t->grammar_symbol >= START_AST_SYM)
            && (t->grammar_symbol <= END_AST_SYM))
        {
-           printf("%s", non_term_strings[(t->grammar_symbol - START_AST_SYM)]);
+           printf("%s", non_term_strings[(t->grammar_symbol - 400)]);
        }
        else {
            printf("unknown grammar symbol %d", t->grammar_symbol);
