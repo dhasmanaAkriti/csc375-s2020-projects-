@@ -286,7 +286,7 @@ void FunDecListHelper(FILE *fd, ast_node *parent) {
 }
 
 void VarDecListHelper(FILE *fd, ast_node *parent) {
-    printf("VarDecListHelper\n");
+  printf("VarDecListHelper\n");
   if(lookahead == INT||lookahead == CHAR) {
     ast_info *VarDecListHelper_info = create_new_ast_node_info(NONTERMINAL, 0, VARDECLISTHELPER, lexbuf, src_lineno);
     ast_node *VarDecListHelper_node = create_ast_node(VarDecListHelper_info);
@@ -447,7 +447,6 @@ void block(FILE *fd, ast_node *parent){
 
 void StmtList(FILE *fd, ast_node *parent){
   printf("StmtList\n");
-
   ast_info *StmtList_info = create_new_ast_node_info(NONTERMINAL, 0, STMTLIST, lexbuf, src_lineno);
   ast_node *StmtList_node = create_ast_node(StmtList_info);
   Stmt(fd, StmtList_node);
@@ -533,7 +532,7 @@ void Stmt(FILE *fd, ast_node *parent){
       add_child_node(stmt_node, punct12_node);
       add_child_node(parent, stmt_node);
       lookahead = lexan(fd);
-
+    
     } else if(match(RETURN, 0) ||match(WRITE, 0)){
       ast_info *punct13_info = create_new_ast_node_info(lookahead, 0, 0, lexbuf, src_lineno);
       ast_node *punct13_node = create_ast_node(punct13_info);
@@ -632,10 +631,13 @@ void expr(FILE *fd, ast_node *parent){
 
 
   }else{
-    match(ID, 0);
     ast_info *expr_info = create_new_ast_node_info(NONTERMINAL, 0, EXPR, 0, src_lineno);
     ast_node *expr_node = create_ast_node(expr_info);
-
+    if (match(ID, 0)){
+      ast_info *ID_info = create_new_ast_node_info(ID, 0, 0, lexbuf, src_lineno);
+      ast_node *ID_node = create_ast_node(ID_info);
+      add_child_node(fd, expr_node);
+    }
     expr_zero(fd, expr_node);
 
     add_child_node(parent, expr_node);
@@ -820,12 +822,6 @@ void expr_five_dash(FILE *fd, ast_node *parent){
 void primary(FILE *fd, ast_node *parent){
   printf("primary\n");
   if(lookahead == ID){
-    ast_info *primary_info = create_new_ast_node_info(NONTERMINAL, 0, PRIMARY, 0, src_lineno);
-    ast_node *primary_node = create_ast_node(primary_info);
-    ast_info *id_info = create_new_ast_node_info(ID, 0, 0, lexbuf, src_lineno);
-    ast_node *id_node = create_ast_node(id_info);
-
-    add_child_node(primary_node, id_node);
     if(second != 0){
       lookahead = second;
       second = 0;
@@ -834,38 +830,28 @@ void primary(FILE *fd, ast_node *parent){
       // printf("%s\n", terminal_strings[lookahead]);
       // printf("%s\n", terminal_strings[tokenval]);
     }
-    id_dec(fd, id_node);
-    add_child_node(parent, primary_node);
+    id_dec(fd, parent);
   }else if(match(NUM, 0)){
-      ast_info *primary_info = create_new_ast_node_info(NONTERMINAL, 0, PRIMARY, 0, src_lineno);
-      ast_node *primary_node = create_ast_node(primary_info);
       ast_info *num_info = create_new_ast_node_info(NUM, tokenval, 0, lexbuf, src_lineno);
       ast_node *num_node = create_ast_node(num_info);
 
-      add_child_node(primary_node, num_node);
-
-      add_child_node(parent, primary_node);
+      add_child_node(parent, num_node);
       lookahead = lexan(fd);
   }else if(match(PUNCT, LP)){
-    ast_info *primary_info = create_new_ast_node_info(NONTERMINAL, 0, PRIMARY, 0, src_lineno);
-    ast_node *primary_node = create_ast_node(primary_info);
-
     ast_info *lp_info = create_new_ast_node_info(PUNCT, LP, 0, 0, src_lineno);
     ast_node *lp_node = create_ast_node(lp_info);
 
-    add_child_node(primary_node, lp_node);
+    add_child_node(parent, lp_node);
 
     lookahead = lexan(fd);
 
-    expr(fd, primary_node);
+    expr(fd, parent);
 
     if(match(PUNCT, RP)){
       ast_info *rp_info = create_new_ast_node_info(PUNCT, RP, 0, 0, src_lineno);
       ast_node *rp_node = create_ast_node(rp_info);
 
-      add_child_node(primary_node, rp_node);
-
-      add_child_node(parent, primary_node);
+      add_child_node(parent, rp_node);
       lookahead = lexan(fd);
     }else{
       parser_error(src_lineno);
